@@ -24,14 +24,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-
+/*
+This class represents a JournalFragment.
+A journal fragment displays information about the user's reading journal entries in a recycler view.
+It has view binding, a layout manager, a recycler view, a recycler adapter (journal-specific), an array list of journal entries,
+a journal firebase helper, and a floating action button.
+ */
 public class JournalFragment extends Fragment implements RecyclerAdapterJournal.OnNoteListener {
-    private static final String TAG = "JournalFragment"; // For logging
-
 
     FragmentJournalBinding binding;
-    FragmentManager fragmentManager;
-    private Parcelable recyclerViewState;
     private LinearLayoutManager layoutManager;
     private RecyclerView rview;
     private RecyclerAdapterJournal adapter;
@@ -44,6 +45,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
                              Bundle savedInstanceState) {
         binding = FragmentJournalBinding.inflate(inflater, container, false);
 
+        // setting variables
         addButton = binding.fabAddEntry;
         rview = binding.rview;
         entryList = new ArrayList<>();
@@ -61,11 +63,12 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
 
         Toast.makeText(getContext(), "Tap and hold a journal entry for more details", Toast.LENGTH_LONG).show();
 
-        // Set up the button click listener here
+        // the floating action button will allow the user to create a new journal entry from their "currently reading" books
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (getActivity() instanceof MainActivity) {
+                    // ask MainActivity to go to OpenBooks
                     ((MainActivity)getActivity()).navigateToOpenBooksFragment();
                 }
             }
@@ -78,53 +81,86 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
     public void onResume() {
         super.onResume();
 
-        Log.d(TAG, "onResume called. Entries count: " + (entryList != null ? entryList.size() : 0));
-
         loadEntries();
 
-        // Force refresh the adapter when returning to the fragment
-        // Use post to ensure it happens after layout completes
         if (rview != null) {
             rview.post(() -> {
+                // Use post to ensure the operation happens after layout completes
                 if (adapter != null && entryList != null) {
+                    // Force refresh the adapter when returning to the fragment
                     adapter.resetExpandedState();
                     adapter.notifyDataSetChanged();
-                    Log.d(TAG, "Adapter notified of data change after post");
                 }
             });
         }
     }
 
+    /*
+    Method to determine what a click does.
+    This is a method from the RecyclerAdapterJournal.OnNoteListener interface
+    The recycler view will use this as a listener to determine what to do with clicks.
+    A click will expand/collapse the card clicked
+    */
+    @Override
+    public void onNoteClick(Entry entry) {
+
+        // find position in the list
+        int position = entryList.indexOf(entry);
+        // if it's a valid position
+        if (position != -1) {
+            // ask the adapter to toggle expansion of the card at that position
+            adapter.toggleExpansion(position);
+        }
+    }
+
+    /*
+    Method to determine what a long click does.
+    This is a method from the RecyclerAdapterJournal.OnNoteListener interface
+    The recycler view will use this as a listener to determine what to do with long clicks.
+    A long click will open a JournalEntryFragment.
+     */
+    @Override
+    public void onNoteLongClick(Entry entry) {
+        if (getActivity() instanceof MainActivity) {
+            // ask the MainActivity to go to JournalEntryFragment based on the entry clicked
+            ((MainActivity) getActivity()).navigateToJournalEntry(entry);
+        }
+    }
+
+    /*
+    Helper method to set up the recycler view
+     */
     private void setupRecyclerView() {
 
+        // create a new adapter using this entry list for data
         adapter = new RecyclerAdapterJournal(getContext(), entryList);
+        // use this as the OnNoteListener for the recycler view adapter
         adapter.setOnNoteListener(this);
+        // assign the adapter to the recycler view
         rview.setAdapter(adapter);
 
         // Set up layout manager as a field to access later
         layoutManager = new LinearLayoutManager(getContext());
+        // assign this layout manager to the recycler view
         binding.rview.setLayoutManager(layoutManager);
     }
 
+    /*
+    Method to load Entries into the fragment
+     */
     protected void loadEntries() {
 
+        // get all the entris from the database using the JournalFirebaseHelper
         fbHelper.getAllEntries(new JournalFirebaseHelper.FirebaseCallback() {
             @Override
             public void onCallback(List<Entry> entries) {
 
+                // check for null activity
                 if (getActivity() == null) {
                     return;
                 }
 
-                Log.d(TAG, "Received " + entries.size() + " entries from Firebase");
-                for (Entry entry : entries) {
-                    Log.d(TAG, "Entry: " + entry.getId() +
-                            ", Book: " + (entry.getBook() != null ?
-                            entry.getBook().getTitle() : "NULL") +
-                            ", Type: " + (entry.getType() != null ?
-                            entry.getType().toString() : "NULL"));
-                }
-
+                // moves operations from a background thread to the UI thread to update the recycler view with Books
                 getActivity().runOnUiThread(() -> {
 
                     Collections.sort(entries, (entry1, entry2) -> {
@@ -132,50 +168,27 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
                         return entry2.getDate().compareTo(entry1.getDate());
                     });
 
+                    // clear the entry list to avoid adding everything a million times
                     entryList.clear();
 
-                    for (int i = entries.size() - 1; i >= 0; i--) {
-                        entryList.add(entries.get(i));
-                    }
-//                    entryList.addAll(entries);
+//                    // add all entries back from the end of the list to the beginning.
+//                    // this ensures that the latest entries are at the top of the recycler view
+//                    for (int i = entries.size() - 1; i >= 0; i--) {
+//                        entryList.add(entries.get(i));
+//                    }
+                    entryList.addAll(entries);
 
                     if (adapter != null) {
                         adapter.notifyDataSetChanged();
 
-                        // Hide loading indicator if needed
-                        // binding.progressBar.setVisibility(View.GONE);
-
                         // Show empty state or content based on results
                         if (entryList.isEmpty()) {
-                            // binding.emptyState.setVisibility(View.VISIBLE);
-                            // binding.recyclerView.setVisibility(View.GONE);
-                        } else {
-                            // binding.emptyState.setVisibility(View.GONE);
-                            // binding.recyclerView.setVisibility(View.VISIBLE);
+                            // TODO: add empty message to user so they don't wait a million years
                         }
-                    } else {
                     }
                 });
             }
         });
-    }
-
-
-
-    @Override
-    public void onNoteClick(Entry entry) {
-        int position = entryList.indexOf(entry);
-        if (position != -1) {
-            adapter.toggleExpansion(position);
-        }
-    }
-
-    @Override
-    public void onNoteLongClick(Entry entry) {
-        // Navigate to the entry details fragment
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).navigateToJournalEntry(entry);
-        }
     }
 
     public void filterByTitle(String title) {

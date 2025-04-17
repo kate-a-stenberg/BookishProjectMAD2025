@@ -1,5 +1,9 @@
 package com.example.bookishproject;
 
+/*
+This class represents a Date.
+A Date has a day, a month, and a year
+ */
 public class Date {
 
     private int day;
@@ -14,16 +18,18 @@ public class Date {
         this.year = year;
     }
 
-    public int compareTo(Date otherDate) {
-        if (this.year != otherDate.getYear()) {
-            return this.year - otherDate.getYear();
-        }
-        if (this.month != otherDate.month) {
-            return this.month - otherDate.getMonth();
-        }
-        return this.day - otherDate.getDay();
+    // GETTERS
+    public int getDay() {
+        return this.day;
+    }
+    public int getMonth() {
+        return this.month;
+    }
+    public int getYear() {
+        return this.year;
     }
 
+    // SETTERS
     public void setDay(int day) {
         this.day = day;
     }
@@ -34,6 +40,28 @@ public class Date {
         this.year = year;
     }
 
+    /*
+    Method to compare two dates.
+    Returns the difference between thisDate and otherDate.
+    A positive integer means otherDate is earlier than thisDate; negative integer means otherDate is later than thisDate
+     */
+    public int compareTo(Date otherDate) {
+
+        // start out with year. the years are different, then one date is clearly earlier
+        if (this.year != otherDate.getYear()) {
+            return this.year - otherDate.getYear();
+        }
+        // if the years are the same, but the months are different, one is earlier than the other
+        if (this.month != otherDate.month) {
+            return this.month - otherDate.getMonth();
+        }
+        // if the years and months are the same, but the days are different one is earlier than the other
+        return this.day - otherDate.getDay();
+    }
+
+    /*
+    Method to convert the numeric month to a String, for display purposes
+     */
     public String monthString() {
         String monthWord;
         if (this.month == 1) {
@@ -79,16 +107,9 @@ public class Date {
         return monthWord;
     }
 
-    public int getDay() {
-        return this.day;
-    }
-    public int getMonth() {
-        return this.month;
-    }
-    public int getYear() {
-        return this.year;
-    }
-
+    /*
+    Method to generate a String version of the date for display purposes
+     */
     public String displayDate() {
         return monthString() + " " + this.day + ", " + this.year;
     }

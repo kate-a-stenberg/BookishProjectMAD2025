@@ -8,6 +8,27 @@ import androidx.annotation.NonNull;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+This is a class to represent a Book object.
+This class object is the central unit of data in this app.
+Book class objects are stored in the firebase database.
+The Book class implements Parcelable, which enables it to be passed efficiently between fragments in the form of Bundles.
+They have the following attributes:
+id : this is the label for this object in storage
+title : title of the book
+series : series the book belongs to. If no series, series is "standalone"
+number : the number in the series. If no series, number is 0
+author : the author of the book. currently only allows for one author
+cover : if cover is stored in the app, this is the address of the cover
+coverUrl : if cover is retrieved externally, this is the address of the cover
+genre : the genre of the book
+synopsis : the synopsis of the book
+categories : categories the book might belong to. wide and varied possibilities such as "Juvenile fiction" or "1800s feminist literature"
+ageRange : the age group the book is meant for. Books loaded externally are either MATURE or NOT_MATURE
+pubYear : the publication date of the book
+status : status of the book could be "Want to read", "Currently reading", "Read," or "DNF"
+apiId : the id of the corresponding data item from the API
+ */
 public class Book implements Parcelable {
 
     private String id;
@@ -27,6 +48,9 @@ public class Book implements Parcelable {
 
     public Book(){}
 
+    /*
+    constructor using a parcel
+     */
     protected Book(Parcel in) {
         apiId = in.readString();
         title = in.readString();
@@ -48,20 +72,26 @@ public class Book implements Parcelable {
         }
     }
 
-    public Book (String title, String series, int number, String author, int cover, String genre, String synopsis, String ageRange, String pubYear) {
-        this.title = title;
-        this.series = series;
-        this.number = number;
-        this.author = author;
-        this.cover = cover;
-        this.genre = genre;
-        this.synopsis = synopsis;
-        this.ageRange = ageRange;
-        this.categories = new ArrayList<>();
-        this.pubYear = pubYear;
-        this.status = "Unread";
-    }
+//    /*
+//    Full argument constructor. not currently used.
+//     */
+//    public Book (String title, String series, int number, String author, int cover, String genre, String synopsis, String ageRange, String pubYear) {
+//        this.title = title;
+//        this.series = series;
+//        this.number = number;
+//        this.author = author;
+//        this.cover = cover;
+//        this.genre = genre;
+//        this.synopsis = synopsis;
+//        this.ageRange = ageRange;
+//        this.categories = new ArrayList<>();
+//        this.pubYear = pubYear;
+//        this.status = "Unread";
+//    }
 
+    /*
+    Getters
+     */
     public String getId() {
         return this.id;
     }
@@ -105,6 +135,9 @@ public class Book implements Parcelable {
         return this.apiId;
     }
 
+    /*
+    Setters
+     */
     public void setId(String id) {
         this.id = id;
     }
@@ -135,9 +168,6 @@ public class Book implements Parcelable {
     public void setAgeRange(String ageRange) {
         this.ageRange = ageRange;
     }
-    public void addTheme(String theme) {
-        this.categories.add(theme);
-    }
     public void setCategories(List<String> categories) {
         this.categories = categories;
     }
@@ -151,11 +181,24 @@ public class Book implements Parcelable {
         this.apiId = id;
     }
 
+    /*
+    Method to add a theme to the categories list
+     */
+    public void addTheme(String theme) {
+        this.categories.add(theme);
+    }
+
+    /*
+    required method for Parcelable classes
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /*
+    Method to write the Book to a parcel
+     */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
         parcel.writeString(apiId);
@@ -179,6 +222,9 @@ public class Book implements Parcelable {
         }
     }
 
+    /*
+    Method to create an instance of a Book from a Parcel
+     */
     public static final Creator<Book> CREATOR = new Creator<Book>() {
         @Override
         public Book createFromParcel(Parcel in) {

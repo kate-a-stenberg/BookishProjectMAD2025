@@ -16,17 +16,26 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.bookishproject.databinding.FragmentBookBinding;
 
-
+/*
+A class for a BookFragment.
+BookFragment is a non-editable view of a Book object's full attributes.
+It uses view binding, a Book object, and fields from the fragment layout.
+It also has a static final variable
+ */
 public class BookFragment extends Fragment {
 
-    FragmentBookBinding binding;
+    // this variable is the name of the Bundle that contains information on the Book whose information to populate its fields with
+    // it receives this from BooksFragment
     private static final String ARG_ENTRY = "book";
+
+    FragmentBookBinding binding;
     Book book;
     private TextView title, author, pubDate, genre, ageRange, synopsis, categories;
     private ImageView cover;
     private ImageButton backButton;
 
 
+    // a contructor using a Book object as a parameter / information source
     public BookFragment (Book book) {
         this.book = book;
     }
@@ -35,7 +44,8 @@ public class BookFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            book = getArguments().getParcelable("book");
+            // the Book whose data will populate the fragment will come from the bundle with this name
+            book = getArguments().getParcelable(ARG_ENTRY);
         }
     }
 
@@ -45,6 +55,7 @@ public class BookFragment extends Fragment {
         // Inflate the layout for this fragment
         binding = FragmentBookBinding.inflate(inflater, container, false);
 
+        // set all the layout fields we want to manipulate
         title = binding.textBookTitle;
         author = binding.textBookAuthor;
         pubDate = binding.textBookPubYear;
@@ -63,6 +74,7 @@ public class BookFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // set all fields with data from the Book
         if (book.getTitle() != null && !book.getTitle().isEmpty()) {
             title.setText(book.getTitle());
         }
@@ -84,30 +96,24 @@ public class BookFragment extends Fragment {
         if (book.getCategories() != null && !book.getCategories().isEmpty()) {
             categories.setText(book.getCategories().toString());
         }
+        // something complicated with cover images. I don't really know about this, I looked it up
+        // I think basically:
+        // if the book has a cover url:
+        // ask Glide send that coverUrl into the cover field, and if the url is not accessible then use this image as a placeholder
         if (book.getCoverUrl() != null && !book.getCoverUrl().isEmpty()) {
             Glide.with(cover.getContext()).load(book.getCoverUrl()).placeholder(R.drawable.pwrf).error(R.drawable.pwrf).into(cover);
         }
         else {
+            // TODO: bring in a better placeholder cover as a user-created Book object will not have a cover. pwrf is a dumb one
             cover.setImageResource(book.getCover());
         }
 
+        // the back button will ask MainActivity to go back to BooksFragment
+        // yes this is cheating by creating a new BooksFragment but it was necessary
+        // THIS IS THE ONLY WAY THIS WORKS OKAY
         backButton.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
-                MainActivity activity = (MainActivity) getActivity();
-
-                // For simplicity, we'll just go back to the search fragment
-                // If you need to maintain state, you'd need to store the filtered books
-                BooksFragment bookFragment = new BooksFragment();
-
-                // Get the current position in the ViewPager
-                int currentPosition = activity.getViewPager().getCurrentItem();
-
-                // Replace current fragment
-                activity.getAdapter().replaceFragment(currentPosition, bookFragment);
-
-                // Update ViewPager
-                activity.getViewPager().setAdapter(activity.getAdapter());
-                activity.getViewPager().setCurrentItem(currentPosition, false);
+                ((MainActivity)getActivity()).navigateToBooksFragment();
             }
         });
     }

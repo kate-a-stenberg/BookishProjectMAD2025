@@ -25,14 +25,19 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+/*
+This class represents a MatchOptionsFragment.
+A match options fragment displays the options that the user can match. In MatchSearchFragment the user entered search terms,
+and in MatchOptionsFragment they are returned a list of Books that match and choose which one they would like to find matches for.
+It has view binding, a recycler view, a recycler view adapter (specific to Books), an array list of search results, and layout fields and elements.
+It also has a static final String attribute.
+ */
 public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
 
-    private static final String ARG_QUERY = "query";
     private FragmentMatchOptionsBinding binding;
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
     private List<Book> results = new ArrayList<>();
-    private TextView noResults;
     private ImageButton backButton;
     private ProgressBar progressBar;
 
@@ -53,64 +58,64 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
 
         adapter.setOnNoteListener(this);
 
-//                position -> {
-//            Book selectedBook = results.get(position);
-//            if (getActivity() instanceof MainActivity) {
-//                BooksFragment booksFragment = ((MainActivity) getActivity()).getBooksFragment();
-//                if (booksFragment != null) {
-//                    booksFragment.addBookToDatabase(selectedBook);
-//                    Toast.makeText(getContext(), "Book added to your collection", Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
 
         if (getArguments() != null && getArguments().containsKey("BOOK_RESULTS")) {
+            // the passedBooks list that this fragment will used can be found by getting the parcelable array labeled "BOOK_RESULTS" from getArguments()
             List<Book> passedBooks = getArguments().getParcelableArrayList("BOOK_RESULTS");
             if (passedBooks != null && !passedBooks.isEmpty()) {
+                // clear everything and then add passedBooks back to the view
                 results.clear();
                 results.addAll(passedBooks);
                 adapter.notifyDataSetChanged();
-            } else {
-                noResults.setVisibility(View.VISIBLE);
-            }
-        } else if (getArguments() != null) {
-            String query = getArguments().getString(ARG_QUERY);
-            if (query != null && !query.isEmpty()) {
-                searchBooks(query);
             }
         }
 
         return binding.getRoot();
     }
 
+    @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         Toast.makeText(getContext(), "Tap and hold a book to find matches", Toast.LENGTH_LONG).show();
 
+        // set a listener for the back button - go back to MatchSearchFragment
         backButton.setOnClickListener(v -> {
-            // Navigate back to MatchOptionsFragment
+            // Ask MainActivity to navigate back to MatchOptionsFragment
             if (getActivity() instanceof MainActivity) {
-                MainActivity activity = (MainActivity) getActivity();
-
-                // For simplicity, we'll just go back to the search fragment
-                // If you need to maintain state, you'd need to store the filtered books
-                MatchSearchFragment searchFragment = new MatchSearchFragment();
-
-                // Get the current position in the ViewPager
-                int currentPosition = activity.getViewPager().getCurrentItem();
-
-                // Replace current fragment
-                activity.getAdapter().replaceFragment(currentPosition, searchFragment);
-
-                // Update ViewPager
-                activity.getViewPager().setAdapter(activity.getAdapter());
-                activity.getViewPager().setCurrentItem(currentPosition, false);
+                ((MainActivity)getActivity()).navigateToMatchSearchFragment();
             }
         });
 
     }
 
+    /*
+    Method to determine what a click does.
+    This is a method from RecyclerAdapterBooks.OnNoteListener
+    The recycler view will use this as a listener to determine what to do with clicks.
+    A click will expand/collapse the card clicked
+    */
+    @Override
+    public void onNoteClick(Book book) {
+
+        // need to find the position of this book in the list
+        int position = results.indexOf(book);
+        if (position != -1) {
+            adapter.toggleExpansion(position);
+        }
+    }
+
+    /*
+    Method to determine what a long click does.
+    This is a method from RecyclerAdapterBooks.OnNoteListener
+    The recycler view will use this as a listener to determine what to do with long clicks.
+    A long click will find similar books to the book on the clicked card
+     */
+    @Override
+    public void onNoteLongClick(Book book) {
+        Toast.makeText(getContext(), "Finding similar books to: " + book.getTitle(), Toast.LENGTH_SHORT).show();
+        findSimilarBooks(book);
+    }
     private void setupRecyclerView() {
         adapter = new RecyclerAdapterBooks(getContext(), results);
         adapter.setOnNoteListener(this);
@@ -118,159 +123,45 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
         rView.setAdapter(adapter);
     }
 
-    public void searchBooks(String query) {
-        noResults.setVisibility(View.GONE);
-        results.clear();
-        adapter.notifyDataSetChanged();
-
-        BookApi bookApi = BookApiClient.getClient();
-        bookApi.searchBooks(query, BookApiClient.getApiKey()).enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<BookResponse> call, Response<BookResponse> response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    if (response.body().getItems() != null && !response.body().getItems().isEmpty()) {
-                        // Convert API response to your Book objects
-                        for (BookItem item : response.body().getItems()) {
-                            results.add(convertToBook(item));
-                        }
-                        adapter.notifyDataSetChanged();
-                    } else {
-                        noResults.setVisibility(View.VISIBLE);
-                    }
-                } else {
-                    Toast.makeText(getContext(), "Error: " + response.message(), Toast.LENGTH_SHORT).show();
-                    noResults.setVisibility(View.VISIBLE);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<BookResponse> call, Throwable t) {
-                Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
-                noResults.setVisibility(View.VISIBLE);
-            }
-        });
-    }
-
-    private Book convertToBook(BookItem item) {
-
-        VolumeInfo info = item.getVolumeInfo();
-        Book book = new Book();
-
-        book.setTitle(info.getTitle());
-
-        if (info.getAuthors() != null && !info.getAuthors().isEmpty()) {
-            book.setAuthor(TextUtils.join(", ", info.getAuthors()));
-        } else {
-            book.setAuthor("Unknown Author");
-        }
-
-        if (info.getMaturityRating() != null) {
-            book.setAgeRange(info.getMaturityRating());
-        }
-
-        if (info.getCategories() != null && !info.getCategories().isEmpty()) {
-            // Still set the genre string for display purposes
-//            book.setGenre(TextUtils.join(", ", info.getCategories()));
-
-            // Also set the categories list for filtering
-            book.setCategories(new ArrayList<>(info.getCategories()));
-        } else {
-            book.setCategories(new ArrayList<>());
-        }
-
-        book.setPubYear(info.getPublishedDate() != null ? info.getPublishedDate() : "Unknown");
-        book.setAgeRange(info.getMaturityRating() != null ? info.getMaturityRating() : "Not specified");
-        book.setSynopsis(info.getDescription() != null ? info.getDescription() : "No description available");
-
-        if (info.getImageLinks() != null) {
-            String imageUrl = info.getImageLinks().getThumbnail();
-            if (imageUrl != null && imageUrl.startsWith("http://")) {
-                imageUrl = imageUrl.replace("http://", "https://");
-            }
-            book.setCoverUrl(imageUrl);
-        }
-
-        book.setApiId(item.getId());
-
-        return book;
-
-    }
-
-    @Override
-    public void onNoteClick(Book book) {
-// Show toast for debugging
-//        Toast.makeText(getActivity(), "Clicked: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-
-        // Tell the adapter to expand/collapse this book's card
-        // We need to find the position of this book in the list
-        int position = results.indexOf(book);
-        if (position != -1) {
-            adapter.toggleExpansion(position);
-        }
-    }
-
-    @Override
-    public void onNoteLongClick(Book book) {
-        Toast.makeText(getContext(), "Finding similar books to: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-
-        progressBar.setVisibility(View.VISIBLE);
-
-        // Start the comparison process
-        findSimilarBooks(book);
-    }
-
+    /*
+    Method to find similar books to a selected book
+     */
     private void findSimilarBooks(Book selectedBook) {
-
-        Log.d("BookComparison", "Starting comparison for book: " + selectedBook.getTitle());
 
         // Get the BookFirebaseHelper instance
         BookFirebaseHelper fbHelper = new BookFirebaseHelper();
 
         // Get all books from Firebase to compare with
-        Log.d("BookComparison", "Fetching books from Firebase...");
-        fbHelper.getAllBooks(new BookFirebaseHelper.FirebaseCallback() {
-            @Override
-            public void onCallback(List<Book> allBooks) {
+        fbHelper.getAllBooks(allBooks -> {
 
-                Log.d("BookComparison", "Retrieved " + allBooks.size() + " books from Firebase");
+            // Create a list to store matching books
+            List<Book> matchingBooks = new ArrayList<>();
 
-                // Create a list to store matching books
-                List<Book> matchingBooks = new ArrayList<>();
+            // Create a BookComparator instance
+            Comparer comparator = new ComparerBasic(selectedBook);
 
-                // Create a BookComparator instance
-                Comparer comparator = new ComparerBasic(selectedBook);
-
-                // Loop through all books and find matches
-                for (Book book : allBooks) {
-                    // Skip the selected book itself
-                    if (book.getApiId() != null && book.getApiId().equals(selectedBook.getApiId())) {
-                        continue;
-                    }
-
-                    Log.d("BookComparison", "Comparing with: " + book.getTitle());
-
-                    // Check if the books are similar based on your comparison criteria
-                    float matchScore = comparator.compareBooks(book);
-                    Log.d("BookComparison", "Match score: " + matchScore);
-
-                    if (comparator.compareBooks(book) >= 0.75) {
-                        matchingBooks.add(book);
-                    }
-
+            // Loop through all books and find matches
+            for (Book book : allBooks) {
+                // Skip the selected book itself
+                if (book.getApiId() != null && book.getApiId().equals(selectedBook.getApiId())) {
+                    continue;
                 }
 
-                Log.d("BookComparison", "Found " + matchingBooks.size() + " similar books");
+                // Check if the books are similar based on the comparison criteria
+                float matchScore = comparator.compareBooks(book);
 
-                // Hide loading indicator
-                if (progressBar != null) {
-                    progressBar.setVisibility(View.GONE);
+                // if a book is over 50% similar, add it to the matchingBooks list
+                // TODO: allow user to decide if they want only very similar results or a wider search
+                if (matchScore >= 0.5) {
+                    matchingBooks.add(book);
                 }
 
-                // Use MainActivity to navigate to results fragment
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity) getActivity()).navigateToMatchResultsFragment(selectedBook, matchingBooks);
+            }
 
-                }
+            // Use MainActivity to navigate to results fragment based on the selectedBook and matchingBooks list
+            if (getActivity() instanceof MainActivity) {
+                ((MainActivity) getActivity()).navigateToMatchResultsFragment(selectedBook, matchingBooks);
+
             }
         });
     }

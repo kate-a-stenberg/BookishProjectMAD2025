@@ -23,12 +23,16 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 
+/*
+This is a class for a BooksFragment.
+A BooksFragment displays information about books in the user's collection using a recycler view.
+It uses view binding, a layout manager to manage the recycler view, a recycler view adapter (specific to Books),
+an array list of Books, and a BookFirebaseHelper to manage connections with the database.
+This Fragment implements the OnNoteListener interface
+ */
 public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
-    private static final String TAG = "BooksFragment"; // For logging
 
     private FragmentBooksBinding binding;
-    private FragmentManager fragmentManager;
-    private Parcelable recyclerViewState;
     private LinearLayoutManager layoutManager;
     private RecyclerView recyclerView;
     private RecyclerAdapterBooks adapter;
@@ -39,8 +43,10 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+
         binding = FragmentBooksBinding.inflate(inflater, container, false);
 
+        // setting variables for the Fragment
         addButton = binding.buttonBooksAdd;
         recyclerView = binding.rview;
         bookList = new ArrayList<>();
@@ -56,32 +62,21 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Log.d(TAG, "onViewCreated called");
+//        Log.d(TAG, "onViewCreated called");
 
+        // instructions for this fragment
         Toast.makeText(getContext(), "Tap and hold a book to see more details", Toast.LENGTH_LONG).show();
 
         // Set up the button click listener here
         addButton.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
+                // ask MainActivity to navigate to BookSearchFragment
                 ((MainActivity)getActivity()).navigateToBookSearchFragment();
             }
-
         });
-        // Example: In your BooksFragment, add a filter button or dropdown
-        binding.buttonBooksSearch.setOnClickListener(v -> {
-            // Show a dialog with category options
-            String[] categories = {"Fiction", "Fantasy", "Romance", "Science Fiction", "Mystery"};
 
-            new AlertDialog.Builder(getContext())
-                    .setTitle("Filter by Category")
-                    .setItems(categories, (dialog, which) -> {
-                        String selectedCategory = categories[which];
-                        filterByCategory(selectedCategory);
-                    })
-                    .setNegativeButton("Clear Filter", (dialog, which) -> {
-                        filterByCategory(null); // Clear the filter
-                    })
-                    .show();
+        binding.buttonBooksSearch.setOnClickListener(v -> {
+            // TODO: filter by title, author, genre, category, or pub date
         });
 
     }
@@ -90,163 +85,130 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     public void onResume() {
         super.onResume();
 
-        Log.d(TAG, "onResume called. Books count: " + (bookList != null ? bookList.size() : 0));
-
         loadBooks();
 
-        // Force refresh the adapter when returning to the fragment
-        // Use post to ensure it happens after layout completes
         if (recyclerView != null) {
+            // Use post to ensure logic happens after layout completes
             recyclerView.post(() -> {
                 if (adapter != null && bookList != null) {
+                    // Force refresh the adapter when returning to the fragment
                     adapter.resetExpandedState();
                     adapter.notifyDataSetChanged();
-                    Log.d(TAG, "Adapter notified of data change after post");
                 }
             });
         }
-//        recyclerView.setVisibility(View.VISIBLE);
     }
 
-    private void setupRecyclerView() {
-        Log.d(TAG, "Setting up RecyclerView");
+    /*
+    Method to determine what a click does.
+    This is a method from RecyclerAdapterBooks.OnNoteListener
+    The recycler view will use this as a listener to determine what to do with clicks.
+    A click will expand/collapse the card clicked
+    */
+    @Override
+    public void onNoteClick(Book book) {
 
+        // find position in the list
+        int position = bookList.indexOf(book);
+        // if it's a valid position
+        if (position != -1) {
+            // ask the adapter to toggle expansion of the card at that position
+            adapter.toggleExpansion(position);
+        }
+
+    }
+
+    /*
+    Method to determine what a long click does.
+    This is a method from RecyclerAdapterBooks.OnNoteListener
+    The recycler view will use this as a listener to determine what to do with long clicks.
+    A long click will open the BookFragment.
+     */
+    @Override
+    public void onNoteLongClick(Book book) {
+        if (getActivity() instanceof MainActivity) {
+            // ask the MainActivity to go to BookFragment
+            ((MainActivity) getActivity()).navigateToBookFragment(book);
+        }
+    }
+
+    /*
+    Helper method to set up the recycler view
+     */
+    private void setupRecyclerView() {
+
+        // create a new adapter using this book list for data
         adapter = new RecyclerAdapterBooks(getContext(), bookList);
+        // use this as the OnNoteListener for the recycler view adapter
         adapter.setOnNoteListener(this);
+        // assign the adapter to the recycler view
         recyclerView.setAdapter(adapter);
 
         // Set up layout manager as a field to access later
         layoutManager = new LinearLayoutManager(getContext());
+        // assign this layout manager to the recycler view
         binding.rview.setLayoutManager(layoutManager);
     }
 
+    /*
+    Method to load books into the fragment.
+     */
     protected void loadBooks() {
 
-        Log.d(TAG, "Loading books from Firebase");
-
+        // get all the books from the database using the BooksFirebaseHelper
         fbHelper.getAllBooks(new BookFirebaseHelper.FirebaseCallback() {
              @Override
              public void onCallback(List<Book> books) {
 
+                 // check for null activity
                  if (getActivity() == null) {
-                     Log.w(TAG, "Fragment not attached to activity");
                      return;
                  }
 
+                 // moves operations from a background thread to the UI thread to update the recycler view with Books
                  getActivity().runOnUiThread(() -> {
 
+                     // clear the book list to avoid adding everything a million times
                      bookList.clear();
+                     // add all books back
                      bookList.addAll(books);
-
-                     Log.d(TAG, "Book list updated, now contains " + bookList.size() + " books");
 
                      if (adapter != null) {
                          adapter.notifyDataSetChanged();
-                         Log.d(TAG, "Adapter notified of data change");
-
-                         // Hide loading indicator if needed
-                         // binding.progressBar.setVisibility(View.GONE);
 
                          // Show empty state or content based on results
                          if (bookList.isEmpty()) {
-                             Log.d(TAG, "Book list is empty");
-                             // binding.emptyState.setVisibility(View.VISIBLE);
-                             // binding.recyclerView.setVisibility(View.GONE);
-                         } else {
-                             Log.d(TAG, "Book list has items");
-                             // binding.emptyState.setVisibility(View.GONE);
-                             // binding.recyclerView.setVisibility(View.VISIBLE);
+                             // TODO: add empty message to user so they don't wait forever
                          }
-                     } else {
-                         Log.w(TAG, "Adapter is null");
                      }
                  });
              }
         });
     }
 
-//    public void addBookToCollection (Book book) {
-//        Log.d(TAG, "addBookToCollection called for: " + book.getTitle());
-//        if (book.getStatus() == null) {
-//            book.setStatus("Want to Read");
-//            Log.d(TAG, "book status is null");
-//            Log.d(TAG, book.getStatus());
-//        } else if (book.getStatus().isEmpty()) {
-//            Log.d(TAG, "book status is empty");
-//            book.setStatus("Want to Read");
-//        }
-//        fbHelper.addBook(book);
-//        Log.d(TAG, "called fbHelper.addBook(book)");
-//        Toast.makeText(getContext(), "Book added to your collection", Toast.LENGTH_SHORT).show();
-//        Log.d(TAG, "loadBooks called");
-//        loadBooks();
-//    }
-
+    /*
+    Method to remove book from collection.
+    Uses BookFirebaseHelper for logic
+     */
     public void removeBookFromCollection(Book book) {
+        // null check
         if (book != null && book.getApiId() != null) {
+            // ask the BookFirebaseHelper to delete the book from the database
             fbHelper.deleteBook(book.getApiId());
             Toast.makeText(getContext(), "Book removed from your collection", Toast.LENGTH_SHORT).show();
         }
     }
 
+    /*
+    Method to update a book in the database
+    Currently not used
+     */
     public void updateBookInCollection(Book book) {
         if (book != null) {
+            // going to ask the BookFirebaseHelper to do it but ran out of time to make sure this works properly.
+            // Also there's currently no need for it here so whatever
 //            fbHelper.updateBook(book);
         }
-    }
-
-    public void onNoteClick(Book book) {
-
-        // Show toast for debugging
-//        Toast.makeText(getActivity(), "Clicked: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-
-        // Tell the adapter to expand/collapse this book's card
-        // We need to find the position of this book in the list
-        int position = bookList.indexOf(book);
-        if (position != -1) {
-            adapter.toggleExpansion(position);
-        }
-
-    }
-
-    @Override
-    public void onNoteLongClick(Book book) {
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).navigateToBookFragment(book);
-        }
-    }
-
-    public void refreshData() {
-        if (adapter != null && bookList != null) {
-            adapter.notifyDataSetChanged();
-        }
-    }
-
-    public void filterByCategory(String category) {
-        if (category == null || category.isEmpty()) {
-            // No filter, load all books
-            loadBooks();
-            return;
-        }
-
-        fbHelper.getBooksWithCategory(category, new BookFirebaseHelper.FirebaseCallback() {
-            @Override
-            public void onCallback(List<Book> books) {
-                if (getActivity() == null) return;
-
-                getActivity().runOnUiThread(() -> {
-                    bookList.clear();
-                    bookList.addAll(books);
-                    adapter.notifyDataSetChanged();
-
-                    if (bookList.isEmpty()) {
-                        // Show empty state
-                    } else {
-                        // Show content
-                    }
-                });
-            }
-        });
     }
 
 }

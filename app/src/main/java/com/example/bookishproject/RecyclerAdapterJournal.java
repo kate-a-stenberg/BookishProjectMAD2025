@@ -17,8 +17,17 @@ import com.example.bookishproject.databinding.JournalCardviewBinding;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+This class represents a RecyclerAdapterJournal object.
+A RecyclerAdapterJournal handles the recycler view layouts specific to the Journal fragment.
+It has a list of entries, a context, a listener, and an expanded position variable.
+ */
 public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapterJournal.ViewHolder> {
 
+    /*
+    This interface defines methods for onNoteClick and onNoteLongClick.
+    This class will assign the implementations of these methods to the cards it generate.
+    */
     public interface OnNoteListener {
         void onNoteClick(Entry entry);
         void onNoteLongClick(Entry entry);
@@ -30,22 +39,27 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
     private int expandedPosition = -1;
     private Context context;
 
+    /*
+    Required no-argument constructor
+     */
     public RecyclerAdapterJournal() {
         super();
         entries = new ArrayList<Entry>();
     }
 
-    public RecyclerAdapterJournal(ArrayList<Entry> entries, OnNoteListener onNoteListener) {
-        this.entries = entries;
-        this.mListener = onNoteListener;
-    }
-
+    /*
+    Constuctor
+     */
     public RecyclerAdapterJournal(Context context, List<Entry> entries) {
         this.entries = entries;
         this.context = context;
     }
 
-    public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    /*
+    Static class ViewHolder
+    Keeps track of the UI elements for the RecyclerAdapter
+     */
+    public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView cardImage;
         TextView title;
@@ -81,13 +95,15 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
             expContentLayout = binding.expandedContentLayout;
             collapsedLayout = binding.collapsedContentLayout;
 
-            itemView.setOnClickListener(this);
-            this.onNoteListener = onNoteListener;
+//            itemView.setOnClickListener(this);
 
+            // sets an onLongClickListener for the recycler view
             binding.getRoot().setOnLongClickListener(v -> {
                 if (onNoteListener != null) {
+                    // get the position of the item cicked
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
+                        // tell the listener which entry was clicked on and have it do whatever it does
                         onNoteListener.onNoteLongClick(entries.get(position));
                         return true; // Consume the long click
                     }
@@ -95,19 +111,17 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
                 return false;
             });
 
+            // sets an onClickListener for the recycler view
             binding.getRoot().setOnClickListener(v -> {
                 if (listener != null) {
+                    // get the position of the item clicked
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
+                        // tell the listener which entry was clicked on and have it do whatever it does
                         listener.onNoteClick(entries.get(position));
                     }
                 }
             });
-        }
-
-        @Override
-        public void onClick(View v) {
-            this.onNoteListener.onNoteClick(entries.get(getAdapterPosition()));
         }
 
     }
@@ -115,10 +129,8 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         binding = JournalCardviewBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(binding, this.mListener, entries);
-
     }
 
     @Override
@@ -126,24 +138,23 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
 
         int position = holder.getAdapterPosition();
 
+        // safety check
         if (position == RecyclerView.NO_POSITION || position >= entries.size()) {
-            // Safety check to avoid crashes
             return;
         }
 
         Entry entry = entries.get(position);
 
+        // set all cards to collapsed reather than expanded
         holder.expContentLayout.setVisibility(View.GONE);
         holder.collapsedLayout.setVisibility(View.VISIBLE);
 
-        // Set Data
-        //holder.cardImage.setImageResource(images.get(position));
+        // set data in cards
         holder.cardImage.setImageResource((entries.get(position)).getBook().getCover());
-
         holder.title.setText((entries.get(position)).getBook().getTitle());
         holder.date.setText(entries.get(position).getDate().displayDate());
         holder.activity.setText(entries.get(position).getDescription());
-
+        // set data in expanded card views
         holder.title2.setText((entries.get(position)).getBook().getTitle());
         holder.date2.setText((entries.get(position)).getDate().displayDate());
         holder.activity2.setText((entries.get(position)).getDescription());
@@ -157,26 +168,10 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
             holder.cardImage.setImageResource(entry.getBook().getCover());
         }
 
+        // handle expanded state separately
         boolean isExpanded = position == expandedPosition;
         holder.expContentLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.collapsedLayout.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
-
-
-//        holder.itemView.setOnClickListener(view -> {
-//            if (isExpanded) {
-//                expandedPosition = -1;
-//            }
-//            else {
-//                int oldExpandedPosition = expandedPosition;
-//                expandedPosition = position;
-//
-//                if (oldExpandedPosition >= 0) {
-//                    notifyItemChanged(oldExpandedPosition);
-//                }
-//            }
-//            notifyItemChanged(position);
-//            onNoteListener.onNoteClick(entry);
-//        });
 
     }
 
@@ -195,9 +190,15 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
         notifyDataSetChanged();
     }
 
+    /*
+    Method to switch back and forth between expanded and collapsed card views
+     */
     public void toggleExpansion(int position) {
         // If this position is already expanded, collapse it
+        // or: if the position clicked on was already expanded
         if (expandedPosition == position) {
+            // set the expanded position to -1
+            // or no position. no expanded
             expandedPosition = -1;
         } else {
             // Otherwise, collapse any expanded position and expand this one

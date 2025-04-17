@@ -5,78 +5,56 @@ import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 
+/*
+This class represents an Entry.
+An entry represents a reading journal entry, summarizing a user's reading activity on a given day.
+Entry implements Parcelable, allowing it to be passed easily between fragments in the form of a Bundle.
+Entry has the following attributes:
+id: how it's stored in the firebase database
+book: the Book associated with the reading activity (what book the user interacted with)
+type: whether the reader started a book, read pages, finished the book, or abandoned the book
+pagesRead: if the type is EntryType.PAGES_READ, this is the number of pages they read
+date: the date of the activity
+description: a brief verbal description of the reading activity
+comments: any comments the user entered about the reading activity
+ */
 public class Entry implements Parcelable {
 
     private String id;
     private Book book;
-    private ActivityType type;
+    private EntryType type;
     private int pagesRead = 0;
     private Date date;
     private String description;
     private String comments;
 
+    /*
+    No-argument constructor
+     */
     public Entry() {};
 
+    /*
+    Constructor using a Book
+     */
     public Entry(Book book) {
         this.book = book;
         this.description = entryDescription();
     }
 
-    public Entry(Book book, ActivityType type, int pagesRead, Date date) {
-        this.book = book;
-        this.type = type;
-        if (type == ActivityType.PAGES_READ) {
-            this.pagesRead = pagesRead;
-        }
-        this.date = date;
-        if (type == ActivityType.STARTED) {
-            this.description = "You started reading!";
-            this.book.setStatus("Currently reading");
-        }
-        else if (type == ActivityType.PAGES_READ) {
-            this.description = "You read " + pagesRead + " pages.";
-        }
-        else if (type == ActivityType.FINISHED ) {
-            this.description = "You finished the book!";
-            this.book.setStatus("Read");
-        }
-        else {
-            this.description = "You did not finish.";
-            this.book.setStatus("DNF");
-        }
-    }
-
-
-    public Entry(Book book, ActivityType type, Date date) {
-        this.book = book;
-        this.type = type;
-        if (type == ActivityType.PAGES_READ) {
-            this.pagesRead = pagesRead;
-        }
-        this.date = date;
-        if (type == ActivityType.STARTED) {
-            this.description = "You started reading!";
-        }
-        else if (type == ActivityType.PAGES_READ) {
-            this.description = "You read " + pagesRead + " pages.";
-        }
-        else if (type == ActivityType.FINISHED ) {
-            this.description = "You finished the book!";
-            this.book.setStatus("Read");
-        }
-        else {
-            this.description = "You did not finish.";
-            this.book.setStatus("DNF");
-        }
-    }
-
+    /*
+    Constructor using a Parcel
+     */
     protected Entry(Parcel in) {
         // TODO: add other fields
         id = in.readString();
         pagesRead = in.readInt();
         description = in.readString();
+        comments = in.readString();
     }
 
+    /*
+    Method to create an instance of an Entry from a Parcel
+    */
     public static final Creator<Entry> CREATOR = new Creator<Entry>() {
         @Override
         public Entry createFromParcel(Parcel in) {
@@ -89,10 +67,11 @@ public class Entry implements Parcelable {
         }
     };
 
+    // GETTERS
     public Book getBook() {
         return book;
     }
-    public ActivityType getType() {
+    public EntryType getType() {
         return type;
     }
     public int getPagesRead() {
@@ -109,10 +88,11 @@ public class Entry implements Parcelable {
     }
     public String getId() {return this.id;}
 
+    // SETTERS
     public void setBook(Book book) {
         this.book = book;
     }
-    public void setType(ActivityType type) {
+    public void setType(EntryType type) {
         this.type = type;
     }
     public void setPagesRead(int pages) {
@@ -124,18 +104,29 @@ public class Entry implements Parcelable {
     public void setDescription(String description) {
         this.description = description;
     }
+    public void setComments(String comments) {
+        this.comments = comments;
+    }
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /*
+    Method to create a description of the entry based on EntryType.
+    For display purposes
+     */
     public String entryDescription() {
 
         String description;
 
-        if (type == ActivityType.STARTED) {
+        if (type == EntryType.STARTED) {
             description = "You started reading!";
             book.setStatus("Currently reading");
         }
-        else if (type == ActivityType.PAGES_READ) {
+        else if (type == EntryType.PAGES_READ) {
             description = "You read " + pagesRead + " pages.";
         }
-        else if (type == ActivityType.FINISHED ) {
+        else if (type == EntryType.FINISHED ) {
             description = "You finished the book!";
             book.setStatus("Read");
         }
@@ -145,36 +136,28 @@ public class Entry implements Parcelable {
         }
         return description;
     }
+
+    /*
+    Method to update the description
+     */
     public void updateDescription() {
         this.description = entryDescription();
     }
 
-    public void setComments(String comments) { this.comments = comments;}
-    public void setId(String id) { this.id = id;}
-
-    public String displayActivityType() {
-        if (type == ActivityType.STARTED) {
-            return "Book started";
-        }
-        else if (type == ActivityType.PAGES_READ) {
-            return pagesRead + " pages read";
-        }
-        else if (type == ActivityType.FINISHED ) {
-            return "Book finished";
-        }
-        else {
-            return "Book abandoned";
-        }
-    }
-
-
+    /*
+    Required method for Parcelable class
+     */
     @Override
     public int describeContents() {
         return 0;
     }
 
+    /*
+    Method to write the entry to a Parcel
+     */
     @Override
     public void writeToParcel(@NonNull Parcel parcel, int i) {
+        // TODO: add other fields
         parcel.writeString(id);
         parcel.writeInt(pagesRead);
         parcel.writeString(description);

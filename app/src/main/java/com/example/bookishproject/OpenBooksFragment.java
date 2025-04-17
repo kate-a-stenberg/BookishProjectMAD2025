@@ -25,7 +25,11 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-
+/*
+This class represents an OpenBooksFragment.
+An Open Books fragment displays the user's current reads in a recycler view.
+It uses view binding, a recycler view, a RecyclerBooksAdapter, a list of results, layout elements, and a BookFirebaseHelper.
+ */
 public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
 
     FragmentOpenBooksBinding binding;
@@ -64,37 +68,20 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
 
         Toast.makeText(getContext(), "Tap and hold a book to create new journal entry", Toast.LENGTH_LONG).show();
 
+        // back button takes the user back to the Journal fragment
         backButton.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
-                MainActivity activity = (MainActivity) getActivity();
-                // Create a new instance of RecsFragment
-                JournalFragment journalFragment = new JournalFragment();
-
-                // Get the current position in the ViewPager (should be 2 for the Recs tab)
-                int currentPosition = activity.getViewPager().getCurrentItem();
-
-                // Replace the current fragment with the RecsFragment
-                ((MainActivity) getActivity()).getAdapter().replaceFragment(currentPosition, journalFragment);
-
-                // This will refresh the ViewPager with the new fragment
-                activity.getViewPager().setAdapter(activity.getAdapter());
-                activity.getViewPager().setCurrentItem(currentPosition, false);
+                ((MainActivity)getActivity()).navigateToJournalFragment();
             }
-//            if (getActivity() != null) {
-//                getActivity().getSupportFragmentManager().popBackStack();
-//                if (getActivity() instanceof MainActivity) {
-//                    ((MainActivity) getActivity()).showViewPager();
-//                }
-//            }
         });
 
+        // the add button takes users to the MyBooksFragment to choose the book they would like to add to their current reads
         addNewBook.setOnClickListener(v -> {
             if (getActivity() != null) {
                 if (getActivity() instanceof MainActivity) {
                     ((MainActivity)getActivity()).navigateToMyBooksFragment();
                 }
             }
-            // findCurrentReads();
         });
 
     }
@@ -105,6 +92,38 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
         loadCurrentReads(); // Refresh the list every time the fragment becomes visible
     }
 
+    /*
+    Method to determine what a click does.
+    This is a method from RecyclerAdapterBooks.OnNoteListener
+    The recycler view will use this as a listener to determine what to do with clicks.
+    A click will expand/collapse the card clicked
+    */
+    @Override
+    public void onNoteClick(Book book) {
+
+        // find position in the list
+        int position = results.indexOf(book);
+        // if it's a valid position
+        if (position != -1) {
+            // ask the adapter to toggle expansion of the card at that position
+            adapter.toggleExpansion(position);
+        }
+
+    }
+
+    /*
+    Method to determine what a long click does.
+    This is a method from RecyclerAdapterBooks.OnNoteListener
+    The recycler view will use this as a listener to determine what to do with long clicks.
+    A long click will ask MainActivity to open a NewEntryFragment based on the selected book.
+    */
+    @Override
+    public void onNoteLongClick(Book book) {
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).navigateToNewEntryFragment(book);
+        }
+    }
+
     private void setupRecyclerView() {
         adapter = new RecyclerAdapterBooks(getContext(), results);
         adapter.setOnNoteListener(this);
@@ -112,23 +131,29 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
         rView.setAdapter(adapter);
     }
 
+    /*
+    Method to load the user's current reads
+     */
     protected void loadCurrentReads() {
         // Show loading indicator or placeholder
         noResults.setText("Loading your current reads...");
         noResults.setVisibility(View.VISIBLE);
 
+        // get a new BookFirebaseHelper
         fbHelper = new BookFirebaseHelper();
 
+        // ask the firebaseHelper to get ALL the books from the database
         fbHelper.getAllBooks(new BookFirebaseHelper.FirebaseCallback() {
             @Override
             public void onCallback(List<Book> allBooks) {
                 // Clear existing results
                 results.clear();
 
-                // Filter for currently reading books
+                // go through all the Books in allBooks
                 for (Book book : allBooks) {
-                    // Fix string comparison by using equals()
+                    // if the Book status is "Currently reading"
                     if (book.getStatus() != null && "Currently reading".equals(book.getStatus())) {
+                        // add it to our results list
                         results.add(book);
                     }
                 }
@@ -139,7 +164,7 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
                         @Override
                         public void run() {
                             if (results.isEmpty()) {
-                                noResults.setText("You don't have any books marked as currently reading");
+                                noResults.setText("You're not reading any books right now. Let's start one!");
                                 noResults.setVisibility(View.VISIBLE);
                                 rView.setVisibility(View.GONE);
                             } else {
@@ -154,61 +179,4 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
         });
     }
 
-//    private void findCurrentReads() {
-//
-//        BookFirebaseHelper fbHelper = new BookFirebaseHelper();
-//
-//        // Get all books from Firebase and filter locally
-//        fbHelper.getAllBooks(new BookFirebaseHelper.FirebaseCallback() {
-//            @Override
-//            public void onCallback(List<Book> allBooks) {
-//
-//                results.clear();
-//
-//                // Filter books based on title and author
-//                List<Book> filteredBooks = new ArrayList<>();
-//
-//                for (Book book : allBooks) {
-//                    if (book.getStatus() != null && book.getStatus().equals("Currently reading")) {
-//                        filteredBooks.add(book);
-//                    }
-//                }
-//
-//                // Now pass these filtered results to your RecsMatchResultsFragment
-//                if (getActivity() == null) return;
-//
-//                if (filteredBooks.isEmpty()) {
-//                    Toast.makeText(getContext(), "No matching books found in your collection", Toast.LENGTH_SHORT).show();
-//                    rView.setVisibility(View.GONE);
-//                } else {
-//                    // Create a new fragment with the results or update existing one
-////                    if (getActivity() instanceof MainActivity) {
-////                        ((MainActivity)getActivity()).showRecsMatchResultsFragment(filteredBooks);
-////                    }
-//                    rView.setVisibility(View.VISIBLE);
-//                    adapter.notifyDataSetChanged(); // Update the adapter with new data
-//                }
-//            }
-//        });
-//    }
-
-    @Override
-    public void onNoteClick(Book book) {
-// Show toast for debugging
-//        Toast.makeText(getActivity(), "Clicked: " + book.getTitle(), Toast.LENGTH_SHORT).show();
-
-        // Tell the adapter to expand/collapse this book's card
-        // We need to find the position of this book in the list
-        int position = results.indexOf(book);
-        if (position != -1) {
-            adapter.toggleExpansion(position);
-        }
-    }
-
-    @Override
-    public void onNoteLongClick(Book book) {
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).navigateToNewEntryFragment(book);
-        }
-    }
 }

@@ -17,15 +17,16 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+This class represents the app's MainActivity.
+It has view binding, a tab layout, a view pager, a view pager adapter
+ */
 public class MainActivity extends AppCompatActivity  {
-    private static final String TAG = "Match Search"; // For logging
 
     private ActivityMainBinding binding;
     private TabLayout tabLayout;
     private ViewPager2 viewPager;
     private VPAdapter adapter;
-    private OnBackPressedCallback backCallback;
-    private int currentTabPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,23 +45,10 @@ public class MainActivity extends AppCompatActivity  {
             tab.setText(adapter.getPageTitle(position));
         }).attach();
 
-        binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                currentTabPosition = tab.getPosition();
-            }
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {}
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {}
-        });
-
         binding.viewPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
             public void onPageSelected(int position) {
                 super.onPageSelected(position);
-                currentTabPosition = position;
             }
         });
 
@@ -69,33 +57,39 @@ public class MainActivity extends AppCompatActivity  {
     @Override
     public void onAttachedToWindow() {
         super.onAttachedToWindow();
-
-        // Monitor the back dispatcher
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(false) {
-            @Override
-            public void handleOnBackPressed() {
-                // This won't handle back, but will let us know if others don't handle it
-                System.out.println("Monitor: Back press reached lowest priority handler");
-            }
-        });
-
-        System.out.println("Back press monitor attached");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Make sure back handling is enabled
-        if (backCallback != null && !backCallback.isEnabled()) {
-            backCallback.setEnabled(true);
-            System.out.println("Back callback re-enabled in onResume");
-        }
     }
 
-    // helper method to get BooksFragment
+    /*
+    Helper method to get BooksFragment
+     */
     public BooksFragment getBooksFragment() {
         return (BooksFragment) adapter.getFragment(1);
     }
+
+    public ViewPager2 getViewPager() {
+        return viewPager;
+    }
+
+    public VPAdapter getAdapter() {
+        return adapter;
+    }
+
+    /*
+    ALL NAVIGATION METHODS FROM HERE
+    All navigation methods follow the same pattern. I'm not commenting all of them so listen up.
+    1. create a new instance of the destination fragment
+    2. (Optional) Pass data to the fragment using a Bundle
+    3. get the current position from the view pager adapter
+    4. ask the adapter to replace the current item with the new instance of the destination fragment
+    5. save the current position as the previous position
+    6. reset the view pager adapter
+    7. ask the adapter again to stay in the current position
+     */
 
     // used by BooksFragment
     public void navigateToBookSearchFragment() {
@@ -105,16 +99,14 @@ public class MainActivity extends AppCompatActivity  {
 
         adapter.replaceFragment(currentPosition, bookSearchFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
+        viewPager.setCurrentItem(currentPosition, false);
     }
 
     // used by BooksFragment, MatchResultsFragment
     public void navigateToBookFragment(Book book) {
         BookFragment bookFragment = new BookFragment(book);
 
-        // pass data to the fragment using Bundle
         Bundle args = new Bundle();
         args.putParcelable("book", book);
         bookFragment.setArguments(args);
@@ -123,9 +115,8 @@ public class MainActivity extends AppCompatActivity  {
 
         adapter.replaceFragment(currentPosition, bookFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
+        viewPager.setCurrentItem(currentPosition, false);
     }
 
     // used by BookSearchFragment
@@ -135,7 +126,7 @@ public class MainActivity extends AppCompatActivity  {
 
         int currentPosition = viewPager.getCurrentItem();
 
-        // Use post to ensure we're not interrupting an existing transition
+        // Use post to ensure it's not interrupting an existing transition
         viewPager.post(() -> {
             // Replace current fragment with the results fragment
             adapter.replaceFragment(currentPosition, resultsFragment);
@@ -147,7 +138,23 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
-    // used by RecsFragment
+    public void navigateToBooksFragment() {
+        // For simplicity, we'll just go back to the search fragment
+        // If you need to maintain state, you'd need to store the filtered books
+        BooksFragment bookFragment = new BooksFragment();
+
+        // Get the current position in the ViewPager
+        int currentPosition = getViewPager().getCurrentItem();
+
+        // Replace current fragment
+        adapter.replaceFragment(currentPosition, bookFragment);
+
+        // Update ViewPager
+        viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(currentPosition, false);
+    }
+
+    // used by RecsFragment, MatchOptionsFragment, MatchResultsFragment
     public void navigateToMatchSearchFragment() {
         MatchSearchFragment recsMatchFragment = new MatchSearchFragment();
 
@@ -155,16 +162,13 @@ public class MainActivity extends AppCompatActivity  {
 
         adapter.replaceFragment(currentPosition, recsMatchFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
+        viewPager.setCurrentItem(currentPosition, false);
     }
 
     // used by MatchSearchFragment
     public void navigateToMatchOptionsFragment(List<Book> books) {
-        Log.d(TAG, "inside navigateToMatchOptionsFragment()");
         MatchOptionsFragment fragment = new MatchOptionsFragment();
-        Log.d(TAG, "created new MatchOptionsFragment. setting arguments");
 
         Bundle args = new Bundle();
         args.putParcelableArrayList("BOOK_RESULTS", new ArrayList<>(books));
@@ -172,8 +176,6 @@ public class MainActivity extends AppCompatActivity  {
 
         // Get current ViewPager position (should be tab 2 for Recs)
         int currentPosition = viewPager.getCurrentItem();
-
-        Log.d(TAG, "set arguments. about to replace fragment");
 
         // Replace current fragment with the new one
         adapter.replaceFragment(currentPosition, fragment);
@@ -209,15 +211,26 @@ public class MainActivity extends AppCompatActivity  {
 
     }
 
+    // used by MatchSearchFragment
+    public void navigateToRecsFragment() {
+        RecsFragment recsFragment = new RecsFragment();
+
+        int currentPosition = viewPager.getCurrentItem();
+
+        adapter.replaceFragment(currentPosition, recsFragment);
+
+        viewPager.setAdapter(adapter);
+        viewPager.setCurrentItem(currentPosition, false);
+    }
+
     // used by JournalEntryFragment (back)
     public void navigateToJournalFragment() {
         JournalFragment journalFragment = new JournalFragment();
         int currentPosition = viewPager.getCurrentItem();
         adapter.replaceFragment(currentPosition, journalFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
+        viewPager.setCurrentItem(currentPosition, false);
     }
 
     // used by JournalFragment
@@ -226,9 +239,8 @@ public class MainActivity extends AppCompatActivity  {
         int currentPosition = viewPager.getCurrentItem();
         adapter.replaceFragment(currentPosition, openBooksFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
+        viewPager.setCurrentItem(currentPosition, false);
     }
 
     // used by OpenBooksFragment
@@ -237,12 +249,11 @@ public class MainActivity extends AppCompatActivity  {
         int currentPosition = viewPager.getCurrentItem();
         adapter.replaceFragment(currentPosition, myBooksFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
+        viewPager.setCurrentItem(currentPosition, false);
     }
 
-    // used by JournalFragment
+    // used by JournalFragment and NewEntryFragment
     public void navigateToJournalEntry(Entry entry) {
         // Create JournalEntryFragment instance with the selected Entry
         JournalEntryFragment journalEntryFragment = new JournalEntryFragment(entry);
@@ -256,9 +267,8 @@ public class MainActivity extends AppCompatActivity  {
 
         adapter.replaceFragment(currentPosition, journalEntryFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
+        viewPager.setCurrentItem(currentPosition, false);
 
     }
 
@@ -274,33 +284,8 @@ public class MainActivity extends AppCompatActivity  {
         int currentPosition = viewPager.getCurrentItem();
         adapter.replaceFragment(currentPosition, newEntryFragment);
 
-        int previousPosition = currentPosition;
         viewPager.setAdapter(adapter);
-        viewPager.setCurrentItem(previousPosition, false);
-    }
-
-    public void showViewPager() {
-        System.out.println("MainActivity: showViewPager called");
-        binding.fragmentContainerView.setVisibility(View.GONE);
-        binding.viewPager.setVisibility(View.VISIBLE);
-
-        // Force refresh the current tab
-        binding.viewPager.post(() -> {
-            int currentTab = binding.viewPager.getCurrentItem();
-            // Temporarily move to another tab then back
-            int tempTab = (currentTab + 1) % 4;
-            binding.viewPager.setCurrentItem(tempTab, false);
-            binding.viewPager.setCurrentItem(currentTab, false);
-            System.out.println("ViewPager refreshed by cycling tabs");
-        });
-    }
-
-    public ViewPager2 getViewPager() {
-        return viewPager;
-    }
-
-    public VPAdapter getAdapter() {
-        return adapter;
+        viewPager.setCurrentItem(currentPosition, false);
     }
 
 }

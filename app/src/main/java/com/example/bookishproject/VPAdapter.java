@@ -7,22 +7,19 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+This class represents a VPAdapter.
+A View Pager Adapter handles operations within the view pager, including creating new fragments and swapping fragments.
+It has a list of fragments and a list of their titles.
+ */
 public class VPAdapter extends FragmentStateAdapter {
 
     private final List<String> pageTitles = new ArrayList<>();
     private Fragment[] fragments;
-//    private Fragment[] originalFragments;
-//    private final SparseArray<Fragment> fragmentMap = new SparseArray<>();
 
     public VPAdapter(@NonNull MainActivity fragmentActivity, int numTabs) {
         super(fragmentActivity);
         fragments = new Fragment[numTabs];
-//        originalFragments = new Fragment[numTabs];
-
-//        fragments[0] = new WelcomeFragment();
-//        fragments[1] = new BooksFragment();
-//        fragments[2] = new RecsFragment();
-//        fragments[3] = new JournalFragment();
 
         pageTitles.add("Welcome");
         pageTitles.add("Books");
@@ -53,11 +50,6 @@ public class VPAdapter extends FragmentStateAdapter {
         fragments[position] = fragment;
         notifyItemChanged(position);
     }
-
-//    public void restoreOriginalFragment(int position) {
-//        fragments[position] = originalFragments[position];
-//        notifyItemChanged(position);
-//    }
 
     public CharSequence getPageTitle(int position) {
         return pageTitles.get(position);

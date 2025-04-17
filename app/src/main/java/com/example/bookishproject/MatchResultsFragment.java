@@ -21,23 +21,24 @@ import com.example.bookishproject.databinding.FragmentMatchSearchBinding;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+This class represents a MatchResultsFragment.
+A match results fragment displays the results of a user's Match search in a recycler view.
+It uses view binding, a recycler view, a RecyclerAdapterBooks, a list of results, a layout manager, layout fields and elements, and
+ */
 public class MatchResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
     private FragmentMatchResultsBinding binding;
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
     private List<Book> results = new ArrayList<>();
     private ImageButton backButton;
     private LinearLayoutManager layoutManager;
-    private Book selectedBook;
 
-    public MatchResultsFragment() {
-        // Required empty public constructor
-    }
+    /*
+    Required empty constructor
+     */
+    public MatchResultsFragment() {}
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,33 +51,20 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         // Inflate the layout for this fragment
         binding = FragmentMatchResultsBinding.inflate(inflater, container, false);
 
+        // set layout field variables
         rView = binding.rview;
         adapter = new RecyclerAdapterBooks();
         backButton = binding.buttonMatchResultsBack;
 
-        Log.d("MatchResultsFragment", "onCreateView called");
-
         if (getArguments() != null) {
-            selectedBook = getArguments().getParcelable("SELECTED_BOOK");
+            // the list of books for this fragment, matchingBooks, can be found in the parcel labeled "MATCHING_BOOKS" in the arguments
             ArrayList<Book> matchingBooks = getArguments().getParcelableArrayList("MATCHING_BOOKS");
 
-            // DEBUGGING
-            Log.d("MatchResultsFragment", "Arguments received. Selected book: " +
-                    (selectedBook != null ? selectedBook.getTitle() : "null"));
-            Log.d("MatchResultsFragment", "Matching books: " +
-                    (matchingBooks != null ? matchingBooks.size() : "null"));
-
-//            if (selectedBook != null) {
-//                comparisonTitleText.setText("Books similar to: " + selectedBook.getTitle());
-//            }
-
+            // clear current results and add all the matchingBooks back in
             if (matchingBooks != null && !matchingBooks.isEmpty()) {
                 results.clear();
                 results.addAll(matchingBooks);
-                // Note: We'll notify the adapter after setting it up
             }
-        } else {
-            Log.d("MatchResultsFragment", "No arguments received");
         }
 
         setupRecyclerView();
@@ -91,29 +79,9 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         Toast.makeText(getContext(), "Tap and hold a book to add to your collection", Toast.LENGTH_LONG).show();
 
         backButton.setOnClickListener(v -> {
-
             if (getActivity() instanceof MainActivity) {
-                MainActivity activity = (MainActivity) getActivity();
-
-                // Create a new instance of BookSearchFragment
-                MatchSearchFragment searchFragment = new MatchSearchFragment();
-
-                // Get current position in ViewPager
-                int currentPosition = activity.getViewPager().getCurrentItem();
-
-                // Replace the current fragment with BookSearchFragment
-                activity.getAdapter().replaceFragment(currentPosition, searchFragment);
-
-                // Update ViewPager
-                activity.getViewPager().setAdapter(activity.getAdapter());
-                activity.getViewPager().setCurrentItem(currentPosition, false);
+                ((MainActivity) getActivity()).navigateToMatchSearchFragment();
             }
-//            if (getActivity() != null) {
-//                getActivity().getSupportFragmentManager().popBackStack();
-//                if (getActivity() instanceof MainActivity) {
-//                    ((MainActivity) getActivity()).showViewPager();
-//                }
-//            }
         });
 
     }
@@ -129,23 +97,34 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         rView.setLayoutManager(layoutManager);
     }
 
+    /*
+    Method to determine what a click does.
+    This is a method from the RecyclerAdapterBooks.OnNoteListener interface
+    The recycler view will use this as a listener to determine what to do with clicks.
+    A click will expand/collapse the card clicked
+    */
     @Override
     public void onNoteClick(Book book) {
 
-        // Tell the adapter to expand/collapse this book's card
-        // We need to find the position of this book in the list
+        // find position in the list
         int position = results.indexOf(book);
+        // if it's a valid position
         if (position != -1) {
+            // ask the adapter to toggle expansion of the card at that position
             adapter.toggleExpansion(position);
         }
+
     }
 
+    /*
+    Method to determine what a long click does.
+    This is a method from the RecyclerAdapterBooks.OnNoteListener interface
+    The recycler view will use this as a listener to determine what to do with long clicks.
+    A long click will open a book display, similar to a BookFragment.
+    */
     @Override
     public void onNoteLongClick(Book book) {
         // TODO: this will navigate to a book display, but it has to be different from BookFragment so that it can have a different back button that goes back to MatchResultsFragment rather than BooksFragment
-//        if (getActivity() instanceof MainActivity) {
-//            ((MainActivity) getActivity()).navigateToBookFragment(book);
-//        }
     }
 
 }

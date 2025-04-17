@@ -2,6 +2,12 @@ package com.example.bookishproject;
 
 import java.util.List;
 
+/*
+This class represents VolumeInfo.
+VolumeInfo is the information returned from the GoogleBooks API about a book.
+It has just a bunch of attributes and getters and setters.
+Very boring.
+ */
 public class VolumeInfo {
     private String title;
     private List<String> authors;
@@ -12,6 +18,8 @@ public class VolumeInfo {
     private String maturityRating;
 
     // constructor?
+
+    // GETTERS
 
     public String getTitle() {
         return this.title;
@@ -34,6 +42,8 @@ public class VolumeInfo {
     public String getMaturityRating() {
         return this.maturityRating;
     }
+
+    // SETTERS
 
     public void setCategories(List<String> categories) {
         this.categories = categories;
