@@ -47,7 +47,7 @@ public class RecsFragment extends Fragment {
         // Match button goes to MatchSearchFragment
         buttonMatch.setOnClickListener(v -> {
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).navigateToMatchSearchFragment();
+                ((MainActivity)getActivity()).getNavigator().navigateToMatchSearchFragment();
             }
         });
 
@@ -56,5 +56,13 @@ public class RecsFragment extends Fragment {
             Toast.makeText(getContext(), "This functionality coming soon!", Toast.LENGTH_SHORT).show();
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setToolbar(this);
+        }
     }
 }

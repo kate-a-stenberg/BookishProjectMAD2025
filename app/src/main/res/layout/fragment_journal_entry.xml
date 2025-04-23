@@ -53,6 +53,7 @@
         android:gravity="start"
         android:text="Month Day, Year"
         android:textAppearance="@style/TextAppearance.AppCompat.Display2"
+        android:fontFamily="@font/adamina_regular"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="@+id/guideline5"
         app:layout_constraintTop_toTopOf="@+id/guideline2" />
@@ -65,6 +66,7 @@
         android:orientation="vertical"
         android:text="Description of activity"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:fontFamily="@font/adamina_regular"
         app:layout_constraintBottom_toTopOf="@+id/textEntryComments"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="@+id/guideline5" />
@@ -76,6 +78,7 @@
         android:layout_marginBottom="30dp"
         android:text="FirstName LastName"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
+        android:fontFamily="@font/adamina_regular"
         app:layout_constraintBottom_toTopOf="@+id/textJournalEntryDescription"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintHorizontal_bias="0.505"
@@ -88,6 +91,7 @@
         android:layout_marginBottom="10dp"
         android:text="Book Title"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:fontFamily="@font/adamina_regular"
         app:layout_constraintBottom_toTopOf="@+id/textJournalEntryAuthor"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="@+id/guideline5" />
@@ -96,44 +100,17 @@
         android:id="@+id/textEntryComments"
         android:layout_width="0dp"
         android:layout_height="148dp"
-        android:layout_marginBottom="10dp"
         android:background="@drawable/outline_edittext"
-        android:editable="false"
+        android:cursorVisible="false"
         android:ems="10"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:fontFamily="@font/adamina_regular"
         android:gravity="start|top"
         android:inputType="textMultiLine"
         android:padding="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        app:layout_constraintBottom_toTopOf="@+id/guideline3"
         app:layout_constraintEnd_toStartOf="@+id/guideline4"
         app:layout_constraintStart_toStartOf="@+id/guideline5" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/md_theme_primaryContainer_highContrast"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:padding="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-        <ImageButton
-            android:id="@+id/buttonEntryBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/md_theme_secondaryContainer"
-            android:src="@android:drawable/ic_menu_revert" />
-
-        <Button
-            android:id="@+id/textBack"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Back to my reading journal"
-            android:textColor="@color/md_theme_inverseOnSurface"
-            android:textAllCaps="false" />
-
-    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,11 +6,9 @@ A Date has a day, a month, and a year
  */
 public class Date {
 
-    private int day;
-    private int month;
-    private int year;
-
-    public Date() {}
+    private final int day;
+    private final int month;
+    private final int year;
 
     public Date(int day, int month, int year) {
         this.day = day;
@@ -29,16 +27,6 @@ public class Date {
         return this.year;
     }
 
-    // SETTERS
-    public void setDay(int day) {
-        this.day = day;
-    }
-    public void setMonth(int month) {
-        this.month = month;
-    }
-    public void setYear(int year) {
-        this.year = year;
-    }
 
     /*
     Method to compare two dates.

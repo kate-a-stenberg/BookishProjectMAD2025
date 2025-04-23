@@ -2,14 +2,12 @@ package com.example.bookishproject;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,14 +26,11 @@ public class BookFragment extends Fragment {
     // it receives this from BooksFragment
     private static final String ARG_ENTRY = "book";
 
-    FragmentBookBinding binding;
-    Book book;
+    private Book book;
     private TextView title, author, pubDate, genre, ageRange, synopsis, categories;
     private ImageView cover;
-    private ImageButton backButton;
 
-
-    // a contructor using a Book object as a parameter / information source
+    // a constructor using a Book object as a parameter / information source
     public BookFragment (Book book) {
         this.book = book;
     }
@@ -50,10 +45,10 @@ public class BookFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        binding = FragmentBookBinding.inflate(inflater, container, false);
+        FragmentBookBinding binding = FragmentBookBinding.inflate(inflater, container, false);
 
         // set all the layout fields we want to manipulate
         title = binding.textBookTitle;
@@ -65,13 +60,11 @@ public class BookFragment extends Fragment {
         categories = binding.textBookThemes;
         cover = binding.imageCover;
 
-        backButton = binding.buttonBack;
-
         return binding.getRoot();
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
         // set all fields with data from the Book
@@ -94,28 +87,27 @@ public class BookFragment extends Fragment {
             synopsis.setText(book.getSynopsis());
         }
         if (book.getCategories() != null && !book.getCategories().isEmpty()) {
-            categories.setText(book.getCategories().toString());
+            categories.setText(String.join(",", book.getCategories()));
         }
         // something complicated with cover images. I don't really know about this, I looked it up
         // I think basically:
         // if the book has a cover url:
         // ask Glide send that coverUrl into the cover field, and if the url is not accessible then use this image as a placeholder
         if (book.getCoverUrl() != null && !book.getCoverUrl().isEmpty()) {
-            Glide.with(cover.getContext()).load(book.getCoverUrl()).placeholder(R.drawable.pwrf).error(R.drawable.pwrf).into(cover);
+            Glide.with(cover.getContext()).load(book.getCoverUrl()).placeholder(R.drawable.book_cover_background).error(R.drawable.book_cover_background).into(cover);
         }
         else {
-            // TODO: bring in a better placeholder cover as a user-created Book object will not have a cover. pwrf is a dumb one
             cover.setImageResource(book.getCover());
         }
 
-        // the back button will ask MainActivity to go back to BooksFragment
-        // yes this is cheating by creating a new BooksFragment but it was necessary
-        // THIS IS THE ONLY WAY THIS WORKS OKAY
-        backButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).navigateToBooksFragment();
-            }
-        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
     }
 
 }

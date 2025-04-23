@@ -12,6 +12,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bookishproject.Entry;
@@ -32,13 +34,14 @@ a journal firebase helper, and a floating action button.
  */
 public class JournalFragment extends Fragment implements RecyclerAdapterJournal.OnNoteListener {
 
-    FragmentJournalBinding binding;
+    private FragmentJournalBinding binding;
     private LinearLayoutManager layoutManager;
     private RecyclerView rview;
     private RecyclerAdapterJournal adapter;
     private List<Entry> entryList = new ArrayList<>();
-    private FloatingActionButton addButton;
-    JournalFirebaseHelper fbHelper;
+    private JournalFirebaseHelper fbHelper;
+    private ProgressBar progressBar;
+    private TextView noEntries;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -46,8 +49,9 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
         binding = FragmentJournalBinding.inflate(inflater, container, false);
 
         // setting variables
-        addButton = binding.fabAddEntry;
         rview = binding.rview;
+        progressBar = binding.progressBar;
+        noEntries = binding.messageNoEntries;
         entryList = new ArrayList<>();
         fbHelper = new JournalFirebaseHelper();
 
@@ -60,26 +64,16 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Toast.makeText(getContext(), "Tap and hold a journal entry for more details", Toast.LENGTH_LONG).show();
-
-        // the floating action button will allow the user to create a new journal entry from their "currently reading" books
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (getActivity() instanceof MainActivity) {
-                    // ask MainActivity to go to OpenBooks
-                    ((MainActivity)getActivity()).navigateToOpenBooksFragment();
-                }
-            }
-        });
-
         // TODO: add filter functionality for specific books
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
 
         loadEntries();
 
@@ -123,7 +117,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
     public void onNoteLongClick(Entry entry) {
         if (getActivity() instanceof MainActivity) {
             // ask the MainActivity to go to JournalEntryFragment based on the entry clicked
-            ((MainActivity) getActivity()).navigateToJournalEntry(entry);
+            ((MainActivity) getActivity()).getNavigator().navigateToJournalEntry(entry);
         }
     }
 
@@ -150,6 +144,9 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
      */
     protected void loadEntries() {
 
+        // set progress bar to visible
+        progressBar.setVisibility(View.VISIBLE);
+
         // get all the entris from the database using the JournalFirebaseHelper
         fbHelper.getAllEntries(new JournalFirebaseHelper.FirebaseCallback() {
             @Override
@@ -162,6 +159,9 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
 
                 // moves operations from a background thread to the UI thread to update the recycler view with Books
                 getActivity().runOnUiThread(() -> {
+
+                    // set progress bar gone
+                    progressBar.setVisibility(View.GONE);
 
                     Collections.sort(entries, (entry1, entry2) -> {
                         // Assuming newer entries should be shown first
@@ -183,7 +183,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
 
                         // Show empty state or content based on results
                         if (entryList.isEmpty()) {
-                            // TODO: add empty message to user so they don't wait a million years
+                            noEntries.setVisibility(View.VISIBLE);
                         }
                     }
                 });

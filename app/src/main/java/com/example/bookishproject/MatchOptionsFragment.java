@@ -38,10 +38,8 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
     private List<Book> results = new ArrayList<>();
-    private ImageButton backButton;
     private ProgressBar progressBar;
-
-
+    private TextView noBooks;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -51,13 +49,12 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
         binding = FragmentMatchOptionsBinding.inflate(inflater, container, false);
 
         rView = binding.rview;
-        backButton = binding.buttonMatchOptionsBack;
-        progressBar = binding.progressBar; // Initialize the progress bar
+        progressBar = binding.progressBar;
+        noBooks = binding.messageNoBooks;
 
         setupRecyclerView();
 
         adapter.setOnNoteListener(this);
-
 
         if (getArguments() != null && getArguments().containsKey("BOOK_RESULTS")) {
             // the passedBooks list that this fragment will used can be found by getting the parcelable array labeled "BOOK_RESULTS" from getArguments()
@@ -68,6 +65,9 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
                 results.addAll(passedBooks);
                 adapter.notifyDataSetChanged();
             }
+            else {
+                noBooks.setVisibility(View.VISIBLE);
+            }
         }
 
         return binding.getRoot();
@@ -76,17 +76,14 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
 
-        Toast.makeText(getContext(), "Tap and hold a book to find matches", Toast.LENGTH_LONG).show();
-
-        // set a listener for the back button - go back to MatchSearchFragment
-        backButton.setOnClickListener(v -> {
-            // Ask MainActivity to navigate back to MatchOptionsFragment
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).navigateToMatchSearchFragment();
-            }
-        });
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
     }
 
     /*
@@ -128,6 +125,9 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
      */
     private void findSimilarBooks(Book selectedBook) {
 
+        // set progress bar to visible
+        progressBar.setVisibility(View.VISIBLE);
+
         // Get the BookFirebaseHelper instance
         BookFirebaseHelper fbHelper = new BookFirebaseHelper();
 
@@ -158,9 +158,15 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
 
             }
 
+            if (getActivity() != null) {
+                getActivity().runOnUiThread(() -> {
+                    progressBar.setVisibility(View.GONE);
+                });
+            }
+
             // Use MainActivity to navigate to results fragment based on the selectedBook and matchingBooks list
             if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToMatchResultsFragment(selectedBook, matchingBooks);
+                ((MainActivity) getActivity()).getNavigator().navigateToMatchResultsFragment(matchingBooks);
 
             }
         });

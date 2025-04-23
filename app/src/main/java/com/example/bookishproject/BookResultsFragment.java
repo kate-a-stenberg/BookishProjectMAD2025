@@ -2,6 +2,7 @@ package com.example.bookishproject;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,7 +11,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,9 +39,9 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     private FragmentBookResultsBinding binding;
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
-    private List<Book> results = new ArrayList<>();
+    private final List<Book> results = new ArrayList<>();
     private TextView noResults;
-    private ImageButton backButton;
+    private ProgressBar progressBar;
 
     /*
     Method to create a BookResultsFragment from a certain query
@@ -58,7 +59,7 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         binding = FragmentBookResultsBinding.inflate(inflater, container, false);
@@ -66,7 +67,7 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
         // set variables
         rView = binding.recyclerView2;
         noResults = binding.messageNoResults;
-        backButton = binding.buttonBack;
+        progressBar = binding.progressBar;
 
         setupRecyclerView();
         loadQuery();
@@ -75,19 +76,16 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     }
 
     @Override
-    public void onViewCreated (View view, Bundle savedInstanceState) {
+    public void onViewCreated (@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
 
-        // instructions for the user
-        Toast.makeText(getContext(), "Tap and hold a book to add to your collection", Toast.LENGTH_SHORT).show();
-
-        // set an onClickListener for the back button
-        backButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                // ask MainActivity to go to BookSearchFragment
-                ((MainActivity)getActivity()).navigateToBookSearchFragment();
-            }
-        });
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
     }
 
     /*
@@ -118,7 +116,6 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     @Override
     public void onNoteLongClick(Book book) {
         if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
 
             // if the Book has no status, set it to "Want to read"
             if (book.getStatus() == null || book.getStatus().isEmpty()) {
@@ -131,16 +128,6 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
 
             // Show success message
             Toast.makeText(getContext(), "Book added to your collection", Toast.LENGTH_SHORT).show();
-
-            // Optionally try to notify BooksFragment to refresh
-            try {
-                BooksFragment booksFragment = activity.getBooksFragment();
-                if (booksFragment != null && booksFragment.isAdded()) {
-                    booksFragment.loadBooks();
-                }
-            } catch (Exception e) {
-                // Ignore errors, book is already saved to Firebase
-            }
         }
     }
 
@@ -176,23 +163,27 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     Method to search the API for books from a given query
      */
     public void searchBooks(String query) {
+        // show the progress bar
+        progressBar.setVisibility(View.VISIBLE);
+
         // get rid of the "no results" message
         noResults.setVisibility(View.GONE);
         // clear the results list to avoid adding a million things over multiple searches
         results.clear();
         adapter.notifyDataSetChanged();
 
-        // choose your API
+        // get API
         BookApi bookApi = BookApiClient.getClient();
         // ask that API to search books with the given query and API key
         bookApi.searchBooks(query, BookApiClient.getApiKey()).enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<ReturnedBooks> call, Response<ReturnedBooks> response) {
+            public void onResponse(@NonNull Call<ReturnedBooks> call, @NonNull Response<ReturnedBooks> response) {
+                // make the progress bar go away
+                progressBar.setVisibility(View.GONE);
                 // BookResponse is a list of return BookItems
                 if (response.isSuccessful() && response.body() != null) {
                     // if there are results returned
-                    if (response.body().getItems() != null && !response.body().getItems().isEmpty()) {
-                        // Convert API response to Book objects and add them to this Fragment's results list
+                    if (response.body().getItems() != null && !response.body().getItems().isEmpty()) {// Convert API response to Book objects and add them to this Fragment's results list
                         for (BookItem item : response.body().getItems()) {
                             results.add(convertToBook(item));
                         }
@@ -209,9 +200,10 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
             }
 
             @Override
-            public void onFailure(Call<ReturnedBooks> call, Throwable t) {
+            public void onFailure(@NonNull Call<ReturnedBooks> call, @NonNull Throwable t) {
                 Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_LONG).show();
                 noResults.setVisibility(View.VISIBLE);
+                progressBar.setVisibility(View.GONE);
             }
         });
     }

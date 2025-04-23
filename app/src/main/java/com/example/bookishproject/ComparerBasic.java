@@ -15,7 +15,7 @@ public class ComparerBasic implements Comparer {
     private static final String TAG = "Book Comparison"; // For logging
 
 
-    private Book book;
+    private final Book book;
 
     /*
     Basic constructor using the book to compare to another book
@@ -35,7 +35,7 @@ public class ComparerBasic implements Comparer {
     public float compareBooks(Book compareBook) {
 
         // initialize matchScore, earnedScore, and totalScore
-        float matchScore = 0;
+        float matchScore;
         float earnedScore = 0;
         float totalScore = 0;
 

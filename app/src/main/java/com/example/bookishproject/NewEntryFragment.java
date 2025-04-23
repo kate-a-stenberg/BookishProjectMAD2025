@@ -29,16 +29,15 @@ It uses view binding, layout elements, a Book, a JournalFirebaseHelper, and a Bo
  */
 public class NewEntryFragment extends Fragment {
 
-    FragmentNewEntryBinding binding;
-    TextView textTitle, textAuthor, textPages;
-    EditText comments;
-    ImageView coverImage;
-    RadioButton buttonPages, buttonFinished, buttonAbandoned;
-    ImageButton backButton;
-    Button buttonSubmit;
-    Book book;
-    JournalFirebaseHelper fbHelper;
-    BookFirebaseHelper bookFirebaseHelper;
+    private FragmentNewEntryBinding binding;
+    private TextView textTitle, textAuthor, textPages;
+    private EditText comments;
+    private ImageView coverImage;
+    private RadioButton buttonPages, buttonFinished, buttonAbandoned;
+    private Button buttonSubmit;
+    private Book book;
+    private JournalFirebaseHelper fbHelper;
+    private BookFirebaseHelper bookFirebaseHelper;
 
     public NewEntryFragment() {
         // Required empty public constructor
@@ -72,7 +71,6 @@ public class NewEntryFragment extends Fragment {
         buttonPages = binding.radioPagesRead;
         buttonFinished = binding.radioFinished;
         buttonAbandoned = binding.radioAbandoned;
-        backButton = binding.buttonNewEntryBack;
         buttonSubmit = binding.buttonNewEntrySubmit;
 
         return binding.getRoot();
@@ -91,13 +89,6 @@ public class NewEntryFragment extends Fragment {
         else {
             coverImage.setImageResource(book.getCover());
         }
-
-        // back button will ask the MainActivity to go back to OpenBooksFragment
-        backButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).navigateToOpenBooksFragment();
-            }
-        });
 
         // submit button will create a new Entry with the information entered by the user and store it to the database
         buttonSubmit.setOnClickListener(v -> {
@@ -164,7 +155,7 @@ public class NewEntryFragment extends Fragment {
 
                 if (getActivity() instanceof MainActivity) {
                     // move on to the view only journal entry
-                    ((MainActivity)getActivity()).navigateToJournalEntry(newEntry);
+                    ((MainActivity)getActivity()).getNavigator().navigateToJournalEntry(newEntry);
                 }
 
                 // add entry to the database
@@ -174,11 +165,19 @@ public class NewEntryFragment extends Fragment {
             // if we didn't create a valid entry
             if (getActivity() instanceof MainActivity) {
                 // go back to the JournalFragment
-                ((MainActivity)getActivity()).navigateToJournalFragment();
+                ((MainActivity)getActivity()).getNavigator().navigateToJournalFragment();
             }
 
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
     }
 
 }

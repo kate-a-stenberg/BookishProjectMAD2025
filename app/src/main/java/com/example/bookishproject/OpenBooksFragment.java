@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,13 +33,12 @@ It uses view binding, a recycler view, a RecyclerBooksAdapter, a list of results
  */
 public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
 
-    FragmentOpenBooksBinding binding;
+    private FragmentOpenBooksBinding binding;
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
     private List<Book> results = new ArrayList<>();
-    private TextView noResults;
-    private ImageButton backButton;
-    private FloatingActionButton addNewBook;
+    private TextView noBooks;
+    private ProgressBar progressBar;
     private BookFirebaseHelper fbHelper;
 
     @Override
@@ -48,9 +48,8 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
         binding = FragmentOpenBooksBinding.inflate(inflater, container, false);
 
         rView = binding.recyclerView;
-        noResults = binding.messageNoResults;
-        backButton = binding.buttonBack;
-        addNewBook = binding.fabAddNewCurrentRead;
+        noBooks = binding.messageNoOpenBooks;
+        progressBar = binding.progressBar;
 
         setupRecyclerView();
 
@@ -63,32 +62,15 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         loadCurrentReads();
-
-        Toast.makeText(getContext(), "Tap and hold a book to create new journal entry", Toast.LENGTH_LONG).show();
-
-        // back button takes the user back to the Journal fragment
-        backButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).navigateToJournalFragment();
-            }
-        });
-
-        // the add button takes users to the MyBooksFragment to choose the book they would like to add to their current reads
-        addNewBook.setOnClickListener(v -> {
-            if (getActivity() != null) {
-                if (getActivity() instanceof MainActivity) {
-                    ((MainActivity)getActivity()).navigateToMyBooksFragment();
-                }
-            }
-        });
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setToolbar(this);
+        }
         loadCurrentReads(); // Refresh the list every time the fragment becomes visible
     }
 
@@ -120,7 +102,7 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     @Override
     public void onNoteLongClick(Book book) {
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).navigateToNewEntryFragment(book);
+            ((MainActivity) getActivity()).getNavigator().navigateToNewEntryFragment(book);
         }
     }
 
@@ -135,9 +117,9 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     Method to load the user's current reads
      */
     protected void loadCurrentReads() {
-        // Show loading indicator or placeholder
-        noResults.setText("Loading your current reads...");
-        noResults.setVisibility(View.VISIBLE);
+
+        // set progress bar to visible
+        progressBar.setVisibility(View.VISIBLE);
 
         // get a new BookFirebaseHelper
         fbHelper = new BookFirebaseHelper();
@@ -161,14 +143,18 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
                 // Update UI on the main thread
                 if (getActivity() != null) {
                     getActivity().runOnUiThread(new Runnable() {
+
                         @Override
                         public void run() {
+
+                            // set progress bar to gone
+                            progressBar.setVisibility(View.GONE);
+
                             if (results.isEmpty()) {
-                                noResults.setText("You're not reading any books right now. Let's start one!");
-                                noResults.setVisibility(View.VISIBLE);
+                                noBooks.setVisibility(View.VISIBLE);
                                 rView.setVisibility(View.GONE);
                             } else {
-                                noResults.setVisibility(View.GONE);
+                                noBooks.setVisibility(View.GONE);
                                 rView.setVisibility(View.VISIBLE);
                                 adapter.notifyDataSetChanged();
                             }

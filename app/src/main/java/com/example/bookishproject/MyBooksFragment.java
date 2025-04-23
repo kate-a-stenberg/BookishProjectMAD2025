@@ -13,6 +13,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.bookishproject.databinding.FragmentMyBooksBinding;
@@ -36,9 +38,9 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
     private RecyclerView recyclerView;
     private RecyclerAdapterBooks adapter;
     private List<Book> bookList = new ArrayList<>();
-    private FloatingActionButton searchButton;
-    private ImageButton backButton;
     private BookFirebaseHelper fbHelper;
+    private ProgressBar progressBar;
+    private TextView noBooks;
 
     public MyBooksFragment() {
         // Required empty public constructor
@@ -55,9 +57,9 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
 
         binding = FragmentMyBooksBinding.inflate(inflater, container, false);
 
-        searchButton = binding.buttonMyBooksSearch;
-        backButton = binding.buttonMyBooksBack;
         recyclerView = binding.rview;
+        progressBar = binding.progressBar;
+        noBooks = binding.messageNoBooks;
         bookList = new ArrayList<>();
         fbHelper = new BookFirebaseHelper();
 
@@ -71,25 +73,15 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        Toast.makeText(getContext(), "Tap and hold a book to add to current reads", Toast.LENGTH_LONG).show();
-
-        searchButton.setOnClickListener(v -> {
-            // TODO: allow this to filter by title. popup? type in title?
-        });
-
-        // back button goes back to OpenBooksFragment
-        backButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToOpenBooksFragment();
-            }
-        });
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setToolbar(this);
+        }
 
         loadBooks();
 
@@ -103,40 +95,6 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
                 }
             });
         }
-    }
-
-    private void setupRecyclerView() {
-
-        adapter = new RecyclerAdapterBooks(getContext(), bookList);
-        adapter.setOnNoteListener(this);
-        recyclerView.setAdapter(adapter);
-
-        // Set up layout manager as a field to access later
-        layoutManager = new LinearLayoutManager(getContext());
-        binding.rview.setLayoutManager(layoutManager);
-    }
-
-    protected void loadBooks() {
-
-        fbHelper.getAllBooks(new BookFirebaseHelper.FirebaseCallback() {
-            @Override
-            public void onCallback(List<Book> books) {
-
-                if (getActivity() == null) {
-                    return;
-                }
-
-                getActivity().runOnUiThread(() -> {
-
-                    bookList.clear();
-                    bookList.addAll(books);
-
-                    if (adapter != null) {
-                        adapter.notifyDataSetChanged();
-                    }
-                });
-            }
-        });
     }
 
     /*
@@ -200,6 +158,50 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
 
         Toast.makeText(getActivity(), book.getTitle() + " added to your current reads!", Toast.LENGTH_SHORT).show();
         adapter.notifyDataSetChanged();
+    }
+
+    private void setupRecyclerView() {
+
+        adapter = new RecyclerAdapterBooks(getContext(), bookList);
+        adapter.setOnNoteListener(this);
+        recyclerView.setAdapter(adapter);
+
+        // Set up layout manager as a field to access later
+        layoutManager = new LinearLayoutManager(getContext());
+        binding.rview.setLayoutManager(layoutManager);
+    }
+
+    protected void loadBooks() {
+
+        // set progress bar to visible
+        progressBar.setVisibility(View.VISIBLE);
+
+        fbHelper.getAllBooks(new BookFirebaseHelper.FirebaseCallback() {
+            @Override
+            public void onCallback(List<Book> books) {
+
+                if (getActivity() == null) {
+                    return;
+                }
+
+                getActivity().runOnUiThread(() -> {
+
+                    // set progress bar to gone
+                    progressBar.setVisibility(View.GONE);
+
+                    bookList.clear();
+                    bookList.addAll(books);
+
+                    if (bookList.isEmpty()) {
+                        noBooks.setVisibility(View.VISIBLE);
+                    }
+
+                    if (adapter != null) {
+                        adapter.notifyDataSetChanged();
+                    }
+                });
+            }
+        });
     }
 
 }

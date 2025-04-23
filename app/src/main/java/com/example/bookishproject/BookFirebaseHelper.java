@@ -1,8 +1,5 @@
 package com.example.bookishproject;
 
-import android.util.Log;
-import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 
 import com.google.firebase.database.DatabaseReference;
@@ -20,7 +17,7 @@ Uses a DatabaseReference object
  */
 public class BookFirebaseHelper {
 
-    private DatabaseReference dbRef;
+    private final DatabaseReference dbRef;
 
     /*
     No-argument constructor
@@ -37,6 +34,7 @@ public class BookFirebaseHelper {
         // if a book has an ApiId, push it to the database, get the key, and call it the bookId
         String bookId = book.getApiId() != null ? book.getApiId() : dbRef.push().getKey();
         // the child of this bookId in the database will be the Book
+        assert bookId != null;
         dbRef.child(bookId).setValue(book);
     }
 

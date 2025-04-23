@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/bookEditUserInfo"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/bottom_sheet_background"
+    android:fitsSystemWindows="true"
+    android:windowSoftInputMode="adjustResize|stateVisible"
+    app:behavior_peekHeight="0dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
+    <TextView
+        android:id="@+id/sheetBookTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Book Title"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/md_theme_onSurface"
+        android:fontFamily="@font/adamina_regular"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Reading Status"
+        android:textSize="16sp"
+        android:textColor="@color/md_theme_primary"
+        android:fontFamily="@font/adamina_regular"
+        android:layout_marginBottom="8dp" />
+
+    <RadioGroup
+        android:id="@+id/readingStatus"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginBottom="16dp">
+
+        <RadioButton
+            android:id="@+id/statusToRead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Unread"
+            android:fontFamily="@font/adamina_regular"
+            android:buttonTint="@color/md_theme_primary" />
+
+        <RadioButton
+            android:id="@+id/statusCurrentlyReading"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Currently Reading"
+            android:fontFamily="@font/adamina_regular"
+            android:buttonTint="@color/md_theme_primary" />
+
+        <RadioButton
+            android:id="@+id/statusRead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Read"
+            android:fontFamily="@font/adamina_regular"
+            android:buttonTint="@color/md_theme_primary" />
+
+        <RadioButton
+            android:id="@+id/statusDNF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Did Not Finish"
+            android:fontFamily="@font/adamina_regular"
+            android:buttonTint="@color/md_theme_primary" />
+
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rating"
+        android:textSize="16sp"
+        android:textColor="@color/md_theme_primary"
+        android:fontFamily="@font/adamina_regular"
+        android:layout_marginBottom="8dp" />
+
+    <RatingBar
+        android:id="@+id/bookEditStarRating"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="0.5"
+        android:rating="0"
+        android:progressTint="@color/md_theme_tertiary"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Review"
+        android:textSize="16sp"
+        android:textColor="@color/md_theme_primary"
+        android:fontFamily="@font/adamina_regular"
+        android:layout_marginBottom="8dp" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        app:boxStrokeColor="@color/md_theme_primary"
+        app:hintTextColor="@color/md_theme_primary"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/bookEditReview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textMultiLine"
+            android:minLines="1"
+            android:maxLines="5"
+            android:fontFamily="@font/adamina_regular"
+            android:text="Your thoughts on this book..." />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Save Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonBookEditSave"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Save Details"
+        android:textSize="16sp"
+        android:textColor="@color/md_theme_onTertiary"
+        android:fontFamily="@font/adamina_regular"
+        android:backgroundTint="@color/md_theme_tertiary"
+        app:cornerRadius="8dp" />
+
+</LinearLayout>

@@ -28,7 +28,6 @@ public class MatchSearchFragment extends Fragment {
     private FragmentMatchSearchBinding binding;
     private EditText inputTitle, inputAuthor;
     private Button buttonSearch;
-    private ImageButton buttonBack;
 
     /*
     Required empty constructor
@@ -50,7 +49,6 @@ public class MatchSearchFragment extends Fragment {
         inputTitle = binding.textTitleSearch;
         inputAuthor = binding.textAuthorSearch;
         buttonSearch = binding.buttonBookSearch;
-        buttonBack = binding.buttonBack;
 
         return binding.getRoot();
     }
@@ -59,18 +57,19 @@ public class MatchSearchFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // back button will ask MainActivity to go back to RecsFragment
-        buttonBack.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).navigateToRecsFragment();
-            }
-        });
-
         // search button will perform internal search
         buttonSearch.setOnClickListener(v -> {
             performInternalSearch();
         });
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setToolbar(this);
+        }
     }
 
     /*
@@ -121,7 +120,7 @@ public class MatchSearchFragment extends Fragment {
                 else {
                     // ask MainActivity to go to a new MatchOptionsFragment based on the filteredBooks list we made
                     if (getActivity() instanceof MainActivity) {
-                        ((MainActivity)getActivity()).navigateToMatchOptionsFragment(filteredBooks);
+                        ((MainActivity)getActivity()).getNavigator().navigateToMatchOptionsFragment(filteredBooks);
                     }
                 }
             }

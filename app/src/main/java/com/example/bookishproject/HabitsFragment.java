@@ -61,4 +61,12 @@ public class HabitsFragment extends Fragment {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_habits, container, false);
     }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setToolbar(this);
+        }
+    }
 }

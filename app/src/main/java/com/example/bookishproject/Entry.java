@@ -31,7 +31,7 @@ public class Entry implements Parcelable {
     /*
     No-argument constructor
      */
-    public Entry() {};
+    public Entry() {}
 
     /*
     Constructor using a Book

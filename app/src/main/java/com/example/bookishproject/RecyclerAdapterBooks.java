@@ -62,14 +62,7 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView cover;
-        TextView title;
-        TextView author;
-        TextView title2;
-        TextView author2;
-        TextView pubYear;
-        TextView genre;
-        TextView age;
-        TextView categories;
+        TextView title, author, title2, author2, pubYear, genre, age, categories, series, series2;
         private final List<Book> books;
         OnNoteListener onNoteListener;
         LinearLayout expContentLayout;
@@ -84,9 +77,11 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
 
             title = binding.textTitle;
             author = binding.textAuthor;
+            series = binding.textSeries;
 
-            title2 = binding.textBookTitle2;
-            author2 = binding.textBookAuthor2;
+            title2 = binding.textTitle2;
+            author2 = binding.textAuthor2;
+            series2 = binding.textSeries2;
             pubYear = binding.textBookPubYear;
             genre = binding.textBookGenre;
             age = binding.textBookAge;
@@ -156,14 +151,37 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
         }
         holder.title.setText(book.getTitle());
         holder.author.setText(book.getAuthor());
+        if (book.getSeries() == null || book.getSeries().isEmpty()) {
+            holder.series.setVisibility(View.GONE);
+        }
+        else if (!book.getSeries().equals("Standalone")) {
+            holder.series.setText(book.getSeries());
+            holder.series.setVisibility(View.VISIBLE);
+        }
+        if (book.getNumber() != null && book.getNumber() > 0) {
+            holder.series.append(" #" + book.getNumber().toString());
+        }
         // set data in expanded cards
         holder.title2.setText(book.getTitle());
         holder.author2.setText(book.getAuthor());
+
+        if (book.getSeries() == null || book.getSeries().isEmpty()) {
+            holder.series2.setVisibility(View.GONE);
+        }
+        else if (!book.getSeries().equals("Standalone")) {
+            holder.series2.setText(book.getSeries());
+            holder.series2.setVisibility(View.VISIBLE);
+
+        }
+        if (book.getNumber() != null && book.getNumber() > 0) {
+            holder.series2.append(" #" + book.getNumber().toString());
+        }
+
         holder.pubYear.setText("Published: " + book.getPubYear());
         holder.genre.setText("Genre: " + (book.getGenre() != null ? book.getGenre() : "Unknown"));
         holder.age.setText("Age: " + (book.getAgeRange() != null ? book.getAgeRange() : "Not specified"));
         if (book.getCategories() != null) {
-            holder.categories.setText(book.getCategories().toString());
+            holder.categories.append(String.join(",", book.getCategories()));
         }
 
         // Handle expanded state separately

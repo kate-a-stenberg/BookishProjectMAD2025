@@ -1,27 +1,23 @@
 package com.example.bookishproject;
 
-import android.app.AlertDialog;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Parcelable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.example.bookishproject.databinding.FragmentBooksBinding;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import android.widget.ImageView;
 import android.widget.TextView;
-import androidx.annotation.NonNull;
 
 /*
 This is a class for a BooksFragment.
@@ -37,18 +33,20 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     private RecyclerView recyclerView;
     private RecyclerAdapterBooks adapter;
     private List<Book> bookList = new ArrayList<>();
-    private FloatingActionButton addButton;
     private BookFirebaseHelper fbHelper;
+    private ProgressBar progressBar;
+    private TextView noBooks;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         binding = FragmentBooksBinding.inflate(inflater, container, false);
 
         // setting variables for the Fragment
-        addButton = binding.buttonBooksAdd;
         recyclerView = binding.rview;
+        progressBar = binding.progressBar;
+        noBooks = binding.messageNoBooks;
         bookList = new ArrayList<>();
         fbHelper = new BookFirebaseHelper();
 
@@ -59,31 +57,17 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-//        Log.d(TAG, "onViewCreated called");
-
-        // instructions for this fragment
-        Toast.makeText(getContext(), "Tap and hold a book to see more details", Toast.LENGTH_LONG).show();
-
-        // Set up the button click listener here
-        addButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                // ask MainActivity to navigate to BookSearchFragment
-                ((MainActivity)getActivity()).navigateToBookSearchFragment();
-            }
-        });
-
-        binding.buttonBooksSearch.setOnClickListener(v -> {
-            // TODO: filter by title, author, genre, category, or pub date
-        });
-
     }
 
     @Override
     public void onResume() {
         super.onResume();
+
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity) getActivity()).setToolbar(this);
+        }
 
         loadBooks();
 
@@ -128,7 +112,7 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     public void onNoteLongClick(Book book) {
         if (getActivity() instanceof MainActivity) {
             // ask the MainActivity to go to BookFragment
-            ((MainActivity) getActivity()).navigateToBookFragment(book);
+            ((MainActivity) getActivity()).getNavigator().navigateToBookFragment(book);
         }
     }
 
@@ -155,34 +139,37 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
      */
     protected void loadBooks() {
 
+        // set progress bar to visible
+        progressBar.setVisibility(View.VISIBLE);
+
         // get all the books from the database using the BooksFirebaseHelper
-        fbHelper.getAllBooks(new BookFirebaseHelper.FirebaseCallback() {
-             @Override
-             public void onCallback(List<Book> books) {
+        fbHelper.getAllBooks(books -> {
 
-                 // check for null activity
-                 if (getActivity() == null) {
-                     return;
-                 }
+            // check for null activity
+            if (getActivity() == null) {
+                return;
+            }
 
-                 // moves operations from a background thread to the UI thread to update the recycler view with Books
-                 getActivity().runOnUiThread(() -> {
+            // moves operations from a background thread to the UI thread to update the recycler view with Books
+            getActivity().runOnUiThread(() -> {
 
-                     // clear the book list to avoid adding everything a million times
-                     bookList.clear();
-                     // add all books back
-                     bookList.addAll(books);
+                // begone, progress bar!
+                progressBar.setVisibility(View.GONE);
 
-                     if (adapter != null) {
-                         adapter.notifyDataSetChanged();
+                // clear the book list to avoid adding everything a million times
+                bookList.clear();
+                // add all books back
+                bookList.addAll(books);
 
-                         // Show empty state or content based on results
-                         if (bookList.isEmpty()) {
-                             // TODO: add empty message to user so they don't wait forever
-                         }
-                     }
-                 });
-             }
+                if (adapter != null) {
+                    adapter.notifyDataSetChanged();
+
+                    // Show empty state or content based on results
+                    if (bookList.isEmpty()) {
+                        noBooks.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
         });
     }
 
@@ -196,18 +183,6 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
             // ask the BookFirebaseHelper to delete the book from the database
             fbHelper.deleteBook(book.getApiId());
             Toast.makeText(getContext(), "Book removed from your collection", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /*
-    Method to update a book in the database
-    Currently not used
-     */
-    public void updateBookInCollection(Book book) {
-        if (book != null) {
-            // going to ask the BookFirebaseHelper to do it but ran out of time to make sure this works properly.
-            // Also there's currently no need for it here so whatever
-//            fbHelper.updateBook(book);
         }
     }
 

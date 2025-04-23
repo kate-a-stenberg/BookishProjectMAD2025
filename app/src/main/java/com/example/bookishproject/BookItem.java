@@ -7,10 +7,13 @@ It uses an id and VolumeInfo, which is the information that the API has on its b
  */
 public class BookItem {
 
-    private String id;
-    private VolumeInfo volumeInfo;
+    private final String id;
+    private final VolumeInfo volumeInfo;
 
-    // constructor?
+    public BookItem(String id, VolumeInfo volumeInfo) {
+        this.id = id;
+        this.volumeInfo = volumeInfo;
+    }
 
     // just getters
 

@@ -37,15 +37,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Book Title"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
+                android:fontFamily="@font/adamina_regular"
+                />
 
             <TextView
                 android:id="@+id/textNewEntryAuthor"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="FirstName LastName"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+                android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                android:fontFamily="@font/adamina_regular"
+                />
+
         </LinearLayout>
+
     </LinearLayout>
 
     <RadioGroup
@@ -61,19 +67,26 @@
             android:id="@+id/radioPagesRead"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Pages Read:" />
+            android:text="Pages Read:"
+            android:fontFamily="@font/adamina_regular"
+            />
 
         <RadioButton
             android:id="@+id/radioFinished"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Finished" />
+            android:text="Finished"
+            android:fontFamily="@font/adamina_regular"
+            />
 
         <RadioButton
             android:id="@+id/radioAbandoned"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Abandoned" />
+            android:text="Abandoned"
+            android:fontFamily="@font/adamina_regular"
+            />
+
     </RadioGroup>
 
     <EditText
@@ -85,6 +98,7 @@
         android:ems="10"
         android:gravity="start|top"
         android:hint="Comments"
+        android:fontFamily="@font/adamina_regular"
         android:inputType="textMultiLine"
         android:paddingLeft="5dp"
         android:paddingTop="5dp"
@@ -99,42 +113,13 @@
         android:id="@+id/buttonNewEntrySubmit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:fontFamily="@font/adamina_regular"
         android:text="Submit"
-        app:layout_constraintBottom_toTopOf="@+id/linearLayout"
+        android:backgroundTint="@color/md_theme_tertiary"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textComments" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="@color/md_theme_primaryContainer_highContrast"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent">
-
-
-        <ImageButton
-            android:id="@+id/buttonNewEntryBack"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@color/md_theme_secondaryContainer"
-            android:src="@android:drawable/ic_menu_revert" />
-
-        <Button
-            android:id="@+id/textBack"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="left|center_vertical"
-            android:text="Back to Current Reads"
-            android:textColor="@color/md_theme_inverseOnSurface"
-            android:textAllCaps="false" />
-
-    </LinearLayout>
 
     <EditText
         android:id="@+id/textPages"
@@ -143,6 +128,7 @@
         android:layout_marginStart="13dp"
         android:ems="10"
         android:hint="pages read"
+        android:fontFamily="@font/adamina_regular"
         android:inputType="number"
         android:textAppearance="@style/TextAppearance.AppCompat.Small"
         app:layout_constraintStart_toEndOf="@+id/radioGroupActivity"

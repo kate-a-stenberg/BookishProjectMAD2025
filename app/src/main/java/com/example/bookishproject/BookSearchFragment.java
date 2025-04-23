@@ -2,6 +2,7 @@ package com.example.bookishproject;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
@@ -9,7 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.bookishproject.databinding.FragmentBookSearchBinding;
@@ -23,7 +23,6 @@ public class BookSearchFragment extends Fragment {
 
     private FragmentBookSearchBinding binding;
     private EditText inputTitle, inputAuthor;
-    private ImageButton buttonBack;
     private Button buttonSearch;
 
     /*
@@ -41,7 +40,7 @@ public class BookSearchFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
         binding = FragmentBookSearchBinding.inflate(inflater, container, false);
@@ -50,29 +49,26 @@ public class BookSearchFragment extends Fragment {
         inputTitle = binding.textTitleSearch;
         inputAuthor = binding.textAuthorSearch;
         buttonSearch = binding.buttonBookSearch;
-        buttonBack = binding.buttonBack;
 
         return binding.getRoot();
 
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // the back button will ask the MainActivity to go to BooksFragment
-        buttonBack.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).navigateToBooksFragment();
-            }
-        });
-
         // the search button will search
-        buttonSearch.setOnClickListener(v -> {
-            System.out.println("Search button pressed");
-            performSearch();
-        });
+        buttonSearch.setOnClickListener(v -> performSearch());
 
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
     }
 
     /*
@@ -113,7 +109,7 @@ public class BookSearchFragment extends Fragment {
 
         if (getActivity() instanceof MainActivity) {
             // then ask the MainActivity to go to a BookResultsFragment using this query to populate its search
-            ((MainActivity)getActivity()).navigateToBookResultsFragment(query);
+            ((MainActivity)getActivity()).getNavigator().navigateToBookResultsFragment(query);
         }
     }
 

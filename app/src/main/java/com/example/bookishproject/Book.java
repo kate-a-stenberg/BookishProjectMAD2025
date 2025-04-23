@@ -34,10 +34,10 @@ public class Book implements Parcelable {
     private String id;
     private String title;
     private String series;
-    private int number;
+    private Integer number;
     private String author;
-    private int cover;
     private String coverUrl;
+    private int cover;
     private String genre;
     private String synopsis;
     private List<String> categories;
@@ -45,6 +45,8 @@ public class Book implements Parcelable {
     private String pubYear;
     private String status;
     private String apiId;
+    private float rating;
+    private String review;
 
     public Book(){}
 
@@ -52,15 +54,22 @@ public class Book implements Parcelable {
     constructor using a parcel
      */
     protected Book(Parcel in) {
-        apiId = in.readString();
+        id = in.readString();
         title = in.readString();
+        series = in.readString();
+        number = in.readInt();
         author = in.readString();
-        synopsis = in.readString();
-        genre = in.readString();
-        ageRange = in.readString();
-        status = in.readString();
         coverUrl = in.readString();
+        cover = in.readInt();
+        genre = in.readString();
+        synopsis = in.readString();
+        ageRange = in.readString();
         pubYear = in.readString();
+        status = in.readString();
+        apiId = in.readString();
+        rating = in.readFloat();
+        review = in.readString();
+
 
         // Read the categories list
         int size = in.readInt();
@@ -71,23 +80,6 @@ public class Book implements Parcelable {
             }
         }
     }
-
-//    /*
-//    Full argument constructor. not currently used.
-//     */
-//    public Book (String title, String series, int number, String author, int cover, String genre, String synopsis, String ageRange, String pubYear) {
-//        this.title = title;
-//        this.series = series;
-//        this.number = number;
-//        this.author = author;
-//        this.cover = cover;
-//        this.genre = genre;
-//        this.synopsis = synopsis;
-//        this.ageRange = ageRange;
-//        this.categories = new ArrayList<>();
-//        this.pubYear = pubYear;
-//        this.status = "Unread";
-//    }
 
     /*
     Getters
@@ -101,7 +93,7 @@ public class Book implements Parcelable {
     public String getSeries() {
         return this.series;
     }
-    public int getNumber() {
+    public Integer getNumber() {
         return this.number;
     }
     public String getAuthor() {
@@ -134,6 +126,12 @@ public class Book implements Parcelable {
     public String getApiId() {
         return this.apiId;
     }
+    public Float getRating() {
+        return this.rating;
+    }
+    public String getReview() {
+        return this.review;
+    }
 
     /*
     Setters
@@ -147,14 +145,11 @@ public class Book implements Parcelable {
     public void setSeries(String series) {
         this.series = series;
     }
-    public void setNumber(int number) {
+    public void setNumber(Integer number) {
         this.number = number;
     }
     public void setAuthor(String author) {
         this.author = author;
-    }
-    public void setCover(int cover) {
-        this.cover = cover;
     }
     public void setCoverUrl(String url) {
         this.coverUrl = url;
@@ -180,12 +175,11 @@ public class Book implements Parcelable {
     public void setApiId(String id) {
         this.apiId = id;
     }
-
-    /*
-    Method to add a theme to the categories list
-     */
-    public void addTheme(String theme) {
-        this.categories.add(theme);
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+    public void setReview(String review) {
+        this.review = review;
     }
 
     /*
@@ -225,7 +219,7 @@ public class Book implements Parcelable {
     /*
     Method to create an instance of a Book from a Parcel
      */
-    public static final Creator<Book> CREATOR = new Creator<Book>() {
+    public static final Creator<Book> CREATOR = new Creator<>() {
         @Override
         public Book createFromParcel(Parcel in) {
             return new Book(in);

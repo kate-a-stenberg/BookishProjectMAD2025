@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,8 +33,8 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
     private List<Book> results = new ArrayList<>();
-    private ImageButton backButton;
     private LinearLayoutManager layoutManager;
+    private TextView noResults;
 
     /*
     Required empty constructor
@@ -54,7 +55,7 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         // set layout field variables
         rView = binding.rview;
         adapter = new RecyclerAdapterBooks();
-        backButton = binding.buttonMatchResultsBack;
+        noResults = binding.messageNoResults;
 
         if (getArguments() != null) {
             // the list of books for this fragment, matchingBooks, can be found in the parcel labeled "MATCHING_BOOKS" in the arguments
@@ -64,6 +65,9 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
             if (matchingBooks != null && !matchingBooks.isEmpty()) {
                 results.clear();
                 results.addAll(matchingBooks);
+            }
+            else {
+                noResults.setVisibility(View.VISIBLE);
             }
         }
 
@@ -75,15 +79,14 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+    }
 
-        Toast.makeText(getContext(), "Tap and hold a book to add to your collection", Toast.LENGTH_LONG).show();
-
-        backButton.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).navigateToMatchSearchFragment();
-            }
-        });
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
     }
 
     private void setupRecyclerView() {

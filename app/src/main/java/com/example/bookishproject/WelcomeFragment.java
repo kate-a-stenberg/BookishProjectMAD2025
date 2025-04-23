@@ -36,4 +36,12 @@ public class WelcomeFragment extends Fragment {
 
         return binding.getRoot();
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (getActivity() instanceof MainActivity) {
+            ((MainActivity)getActivity()).setToolbar(this);
+        }
+    }
 }
