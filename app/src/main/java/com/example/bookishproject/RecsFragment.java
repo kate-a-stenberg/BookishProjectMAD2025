@@ -17,7 +17,7 @@ This class represents a RecsFragment.
 A Recommendations Fragment gives users the choice about what kind of recommendations they want.
 It uses view binding and layout buttons.
  */
-public class RecsFragment extends Fragment {
+public class RecsFragment extends Fragment implements ColorUpdatable {
 
     FragmentRecsBinding binding;
     private Button buttonMatch, buttonPrefs, buttonHabits;
@@ -38,6 +38,8 @@ public class RecsFragment extends Fragment {
     @Override
     public void onViewCreated (View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        updateColors();
 
         // preferences button does nothing yet
         buttonPrefs.setOnClickListener(v -> {
@@ -63,6 +65,19 @@ public class RecsFragment extends Fragment {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setToolbar(this);
+            updateColors();
+        }
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            binding.buttonRecsHabits.setBackgroundColor(activity.currentInterestColor);
+            binding.buttonRecsMatch.setBackgroundColor(activity.currentInterestColor);
+            binding.buttonRecsPreferences.setBackgroundColor(activity.currentInterestColor);
         }
     }
 }

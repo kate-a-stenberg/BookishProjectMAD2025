@@ -1,5 +1,7 @@
 package com.example.bookishproject;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -26,7 +28,7 @@ It uses view binding, a layout manager to manage the recycler view, a recycler v
 an array list of Books, and a BookFirebaseHelper to manage connections with the database.
 This Fragment implements the OnNoteListener interface
  */
-public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
+public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
 
     private FragmentBooksBinding binding;
     private LinearLayoutManager layoutManager;
@@ -59,6 +61,8 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     @Override
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        updateColors();
     }
 
     @Override
@@ -81,6 +85,8 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
                 }
             });
         }
+
+        updateColors();
     }
 
     /*
@@ -183,6 +189,17 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
             // ask the BookFirebaseHelper to delete the book from the database
             fbHelper.deleteBook(book.getApiId());
             Toast.makeText(getContext(), "Book removed from your collection", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
+            progressBar.setBackgroundColor(Color.TRANSPARENT);
         }
     }
 

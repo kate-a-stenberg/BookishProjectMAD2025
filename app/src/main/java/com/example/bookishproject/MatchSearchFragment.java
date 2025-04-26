@@ -23,7 +23,7 @@ This class represents a MatchSearchFragment.
 A MatchSearchFragment is for the user to enter a book (by title and/or author) that they would like similar books to.
 It has view binding and layout fields and elements.
  */
-public class MatchSearchFragment extends Fragment {
+public class MatchSearchFragment extends Fragment implements ColorUpdatable {
 
     private FragmentMatchSearchBinding binding;
     private EditText inputTitle, inputAuthor;
@@ -57,6 +57,8 @@ public class MatchSearchFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        updateColors();
+
         // search button will perform internal search
         buttonSearch.setOnClickListener(v -> {
             performInternalSearch();
@@ -69,6 +71,7 @@ public class MatchSearchFragment extends Fragment {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setToolbar(this);
+            updateColors();
         }
     }
 
@@ -125,6 +128,16 @@ public class MatchSearchFragment extends Fragment {
                 }
             }
         });
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            binding.buttonBookSearch.setBackgroundColor(activity.currentInterestColor);
+        }
     }
 
 }

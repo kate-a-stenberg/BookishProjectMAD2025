@@ -24,4 +24,11 @@
         <item>Other</item>
     </string-array>
 
+    <string-array name="entry_array">
+        <item>Select activity...</item>
+        <item>Pages read</item>
+        <item>Finished</item>
+        <item>Abandoned</item>
+    </string-array>
+
 </resources>

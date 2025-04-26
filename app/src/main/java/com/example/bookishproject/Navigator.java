@@ -47,16 +47,6 @@ public class Navigator {
 
     // NAVIGATION METHODS
 
-    public void navigateToBookEditFragment(Book book) {
-        BookEditFragment fragment = new BookEditFragment(book);
-
-        Bundle args = new Bundle();
-        args.putParcelable("book", book);
-        fragment.setArguments(args);
-
-        vpSwap(fragment);
-    }
-
     public void navigateToBookFragment(Book book) {
         BookFragment fragment = new BookFragment(book);
 
@@ -96,6 +86,19 @@ public class Navigator {
         // pass data to the fragment using Bundle
         Bundle args = new Bundle();
         args.putParcelable("entry", entry);
+        args.putBoolean("edit_mode", false); // Set to view mode
+        fragment.setArguments(args);
+
+        vpSwap(fragment);
+    }
+
+    public void navigateToJournalEntry(Book book) {
+        JournalEntryFragment fragment = new JournalEntryFragment(book);
+
+        // pass data to the fragment using Bundle
+        Bundle args = new Bundle();
+        args.putParcelable("book", book);
+        args.putBoolean("edit_mode", true); // Set to view mode
         fragment.setArguments(args);
 
         vpSwap(fragment);
@@ -136,17 +139,6 @@ public class Navigator {
 
     public void navigateToMyBooksFragment() {
         MyBooksFragment fragment = new MyBooksFragment();
-        vpSwap(fragment);
-    }
-
-    public void navigateToNewEntryFragment(Book book) {
-        NewEntryFragment fragment = new NewEntryFragment();
-
-        // pass data to the fragment using Bundle
-        Bundle args = new Bundle();
-        args.putParcelable("selected_book", book);
-        fragment.setArguments(args);
-
         vpSwap(fragment);
     }
 

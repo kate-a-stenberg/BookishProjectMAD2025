@@ -22,11 +22,12 @@ public class Entry implements Parcelable {
 
     private String id;
     private Book book;
-    private EntryType type;
+    private String type;
     private int pagesRead = 0;
     private Date date;
     private String description;
     private String comments;
+    private long timestamp;
 
     /*
     No-argument constructor
@@ -38,7 +39,6 @@ public class Entry implements Parcelable {
      */
     public Entry(Book book) {
         this.book = book;
-        this.description = entryDescription();
     }
 
     /*
@@ -71,7 +71,7 @@ public class Entry implements Parcelable {
     public Book getBook() {
         return book;
     }
-    public EntryType getType() {
+    public String getType() {
         return type;
     }
     public int getPagesRead() {
@@ -87,12 +87,15 @@ public class Entry implements Parcelable {
         return comments;
     }
     public String getId() {return this.id;}
+    public long getTimestamp() {
+        return timestamp;
+    }
 
     // SETTERS
     public void setBook(Book book) {
         this.book = book;
     }
-    public void setType(EntryType type) {
+    public void setType(String type) {
         this.type = type;
     }
     public void setPagesRead(int pages) {
@@ -111,22 +114,26 @@ public class Entry implements Parcelable {
         this.id = id;
     }
 
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
     /*
-    Method to create a description of the entry based on EntryType.
-    For display purposes
-     */
+        Method to create a description of the entry based on EntryType.
+        For display purposes
+         */
     public String entryDescription() {
 
         String description;
 
-        if (type == EntryType.STARTED) {
+        if (type.equals("Started")) {
             description = "You started reading!";
             book.setStatus("Currently reading");
         }
-        else if (type == EntryType.PAGES_READ) {
+        else if (type.equals("Pages read")) {
             description = "You read " + pagesRead + " pages.";
         }
-        else if (type == EntryType.FINISHED ) {
+        else if (type.equals("Finished")) {
             description = "You finished the book!";
             book.setStatus("Read");
         }

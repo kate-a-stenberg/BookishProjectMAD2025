@@ -1,4 +1,3 @@
-import com.android.manifmerger.Actions.load
 import java.io.FileInputStream
 import java.util.Properties
 

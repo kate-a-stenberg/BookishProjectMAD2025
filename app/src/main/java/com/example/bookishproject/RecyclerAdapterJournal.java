@@ -9,6 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -62,18 +63,11 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
     public static class ViewHolder extends RecyclerView.ViewHolder {
 
         ImageView cardImage;
-        TextView title;
-        TextView date;
-        TextView activity;
-        TextView title2;
-        TextView date2;
-        TextView activity2;
-        TextView author;
-        TextView details;
+        TextView title, date, activity, title2, date2, activity2, author, details, series;
         private final List<Entry> entries;
         OnNoteListener onNoteListener;
-        LinearLayout expContentLayout;
-        LinearLayout collapsedLayout;
+        LinearLayout expContentLayout, collapsedLayout;
+        CardView card;
 
         public ViewHolder(@NonNull JournalCardviewBinding binding, final OnNoteListener listener, List<Entry> entries) {
             super(binding.getRoot());
@@ -82,18 +76,21 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
 
             cardImage = binding.coverImage;
 
-            title = binding.textJournalTitle;
-            date = binding.textJournalDate;
-            activity = binding.textJournalActivity;
+            title = binding.textTitle;
+            date = binding.textDate;
+            activity = binding.textActivity;
 
-            title2 = binding.textJournalTitle2;
-            date2 = binding.textJournalDate2;
-            activity2 = binding.textJournalActivity2;
-            author = binding.textJournalAuthor;
-            details = binding.textJournalDetails;
+            title2 = binding.textTitle2;
+            date2 = binding.textDate2;
+            activity2 = binding.textActivity2;
+            author = binding.textAuthor;
+            details = binding.textDetails;
+            series = binding.textSeries;
 
             expContentLayout = binding.expandedContentLayout;
             collapsedLayout = binding.collapsedContentLayout;
+
+            card = binding.journalCardView;
 
 //            itemView.setOnClickListener(this);
 
@@ -149,6 +146,9 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
         holder.expContentLayout.setVisibility(View.GONE);
         holder.collapsedLayout.setVisibility(View.VISIBLE);
 
+        holder.series.setVisibility(View.VISIBLE);
+        holder.details.setVisibility(View.VISIBLE);
+
         // set data in cards
         holder.cardImage.setImageResource((entries.get(position)).getBook().getCover());
         holder.title.setText((entries.get(position)).getBook().getTitle());
@@ -159,10 +159,24 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
         holder.date2.setText((entries.get(position)).getDate().displayDate());
         holder.activity2.setText((entries.get(position)).getDescription());
         holder.author.setText((entries.get(position)).getBook().getAuthor());
-        holder.details.setText((entries.get(position)).getComments());
+        if (entry.getComments() != null && !entry.getComments().isEmpty()) {
+            holder.details.setText((entries.get(position)).getComments());
+        }
+        else {
+            holder.details.setVisibility(View.GONE);
+        }
+        if (entry.getBook().getSeries() != null && !entry.getBook().getSeries().isEmpty()) {
+            holder.series.setText(entry.getBook().getSeries());
+            if (entry.getBook().getNumber() != null && entry.getBook().getNumber() > 0) {
+                holder.series.append(" #" + entry.getBook().getNumber().toString());
+            }
+        }
+        else {
+            holder.series.setVisibility(View.GONE);
+        }
 
         if (entry.getBook().getCoverUrl() != null && !entry.getBook().getCoverUrl().isEmpty()) {
-            Glide.with(holder.itemView.getContext()).load(entry.getBook().getCoverUrl()).placeholder(R.drawable.pwrf).error(R.drawable.pwrf).into(holder.cardImage);
+            Glide.with(holder.itemView.getContext()).load(entry.getBook().getCoverUrl()).placeholder(R.drawable.book_cover_background).error(R.drawable.book_cover_background).into(holder.cardImage);
         }
         else {
             holder.cardImage.setImageResource(entry.getBook().getCover());
@@ -172,6 +186,32 @@ public class RecyclerAdapterJournal extends RecyclerView.Adapter<RecyclerAdapter
         boolean isExpanded = position == expandedPosition;
         holder.expContentLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.collapsedLayout.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
+
+        if (context instanceof MainActivity) {
+            int section = ((MainActivity) context).getCurrentSection();
+
+            int cardColor, textColor;
+
+            switch (section) {
+                case 1: // Books
+                    cardColor = context.getResources().getColor(R.color.my_theme_books_background, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_books_text, null);
+                    break;
+                case 2: // Recs
+                    cardColor = context.getResources().getColor(R.color.my_theme_recs_background, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_recs_text, null);
+                    break;
+                case 3: // Journal
+                    cardColor = context.getResources().getColor(R.color.my_theme_journal_background, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_journal_text, null);
+                    break;
+                default:
+                    cardColor = context.getResources().getColor(R.color.my_theme_main_super_light, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_main_super_dark, null);
+            }
+
+            holder.card.setCardBackgroundColor(cardColor);
+        }
 
     }
 

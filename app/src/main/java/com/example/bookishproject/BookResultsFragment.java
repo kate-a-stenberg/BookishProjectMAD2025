@@ -30,7 +30,7 @@ A BookResultsFragment displays a list of books in a recycler view that were retu
 It uses view binding, a recycler view, a recycler adapter, an array list of results, and relevant layout fields and elements
 It also has a static final String variable.
  */
-public class BookResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
+public class BookResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
 
     // this variable is the name of the Bundle that contains information about the query that was run.
     // it receives this from BookSearchFragment
@@ -262,4 +262,11 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
 
     }
 
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+        }
+    }
 }

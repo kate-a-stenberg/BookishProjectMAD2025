@@ -1,5 +1,7 @@
 package com.example.bookishproject;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -31,7 +33,7 @@ This class represents an OpenBooksFragment.
 An Open Books fragment displays the user's current reads in a recycler view.
 It uses view binding, a recycler view, a RecyclerBooksAdapter, a list of results, layout elements, and a BookFirebaseHelper.
  */
-public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
+public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
 
     private FragmentOpenBooksBinding binding;
     private RecyclerView rView;
@@ -63,6 +65,7 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadCurrentReads();
+        updateColors();
     }
 
     @Override
@@ -70,6 +73,7 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setToolbar(this);
+            updateColors();
         }
         loadCurrentReads(); // Refresh the list every time the fragment becomes visible
     }
@@ -102,7 +106,7 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     @Override
     public void onNoteLongClick(Book book) {
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).getNavigator().navigateToNewEntryFragment(book);
+            ((MainActivity) getActivity()).getNavigator().navigateToJournalEntry(book);
         }
     }
 
@@ -163,6 +167,17 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
                 }
             }
         });
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
+            progressBar.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
 }

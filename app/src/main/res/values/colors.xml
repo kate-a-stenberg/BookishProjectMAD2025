@@ -140,4 +140,36 @@
     <color name="md_theme_surfaceContainer_highContrast">#E2E3DC</color>
     <color name="md_theme_surfaceContainerHigh_highContrast">#D4D5CE</color>
     <color name="md_theme_surfaceContainerHighest_highContrast">#C6C7C1</color>
+
+    <color name="my_theme_main_super_dark">#202124</color>
+    <color name="my_theme_main_dark">#3C4043</color>
+    <color name="my_theme_main_medium">#6B7075</color>
+    <color name="my_theme_main_light">#BDC1C6</color>
+    <color name="my_theme_main_super_light">#F8F9FA</color>
+
+    <color name="my_theme_books_text">#231A33</color>
+    <color name="my_theme_books_medium">#5F4B8B</color>
+    <color name="my_theme_books_light">#8A6DB1</color>
+    <color name="my_theme_books_dark">#4A266A</color>
+    <color name="my_theme_books_background">#F5F0FF</color>
+    <color name="my_theme_books_alt_background">#E9E1F9</color>
+    <color name="my_theme_books_interest">#7358A8</color>
+
+    <color name="my_theme_recs_text">#332019</color>
+    <color name="my_theme_recs_medium">#E07A5F</color>
+    <color name="my_theme_recs_light">#F2A384</color>
+    <color name="my_theme_recs_dark">#A63A50</color>
+    <color name="my_theme_recs_background">#FFF5F0</color>
+    <color name="my_theme_recs_alt_background">#F9E7E1</color>
+    <color name="my_theme_recs_interest">#C76D54</color>
+
+    <color name="my_theme_journal_text">#0A2E2C</color>
+    <color name="my_theme_journal_medium">#00A896</color>
+    <color name="my_theme_journal_light">#4FD1C5</color>
+    <color name="my_theme_journal_dark">#06726D</color>
+    <color name="my_theme_journal_background">#F0FFFC</color>
+    <color name="my_theme_journal_alt_background">#E1F5F2</color>
+    <color name="my_theme_journal_interest">#0B9085</color>
+
+
 </resources>

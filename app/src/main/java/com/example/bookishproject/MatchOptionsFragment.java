@@ -1,5 +1,7 @@
 package com.example.bookishproject;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -32,7 +34,7 @@ and in MatchOptionsFragment they are returned a list of Books that match and cho
 It has view binding, a recycler view, a recycler view adapter (specific to Books), an array list of search results, and layout fields and elements.
 It also has a static final String attribute.
  */
-public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
+public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
 
     private FragmentMatchOptionsBinding binding;
     private RecyclerView rView;
@@ -76,6 +78,7 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        updateColors();
     }
 
     @Override
@@ -83,6 +86,7 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity)getActivity()).setToolbar(this);
+            updateColors();
         }
     }
 
@@ -170,6 +174,17 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
 
             }
         });
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
+            progressBar.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
 }

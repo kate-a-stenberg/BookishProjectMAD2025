@@ -1,5 +1,7 @@
 package com.example.bookishproject;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -32,7 +34,7 @@ A journal fragment displays information about the user's reading journal entries
 It has view binding, a layout manager, a recycler view, a recycler adapter (journal-specific), an array list of journal entries,
 a journal firebase helper, and a floating action button.
  */
-public class JournalFragment extends Fragment implements RecyclerAdapterJournal.OnNoteListener {
+public class JournalFragment extends Fragment implements RecyclerAdapterJournal.OnNoteListener, ColorUpdatable {
 
     private FragmentJournalBinding binding;
     private LinearLayoutManager layoutManager;
@@ -64,7 +66,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // TODO: add filter functionality for specific books
+        updateColors();
     }
 
     @Override
@@ -73,6 +75,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
 
         if (getActivity() instanceof MainActivity) {
             ((MainActivity)getActivity()).setToolbar(this);
+            updateColors();
         }
 
         loadEntries();
@@ -163,19 +166,8 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
                     // set progress bar gone
                     progressBar.setVisibility(View.GONE);
 
-                    Collections.sort(entries, (entry1, entry2) -> {
-                        // Assuming newer entries should be shown first
-                        return entry2.getDate().compareTo(entry1.getDate());
-                    });
-
                     // clear the entry list to avoid adding everything a million times
                     entryList.clear();
-
-//                    // add all entries back from the end of the list to the beginning.
-//                    // this ensures that the latest entries are at the top of the recycler view
-//                    for (int i = entries.size() - 1; i >= 0; i--) {
-//                        entryList.add(entries.get(i));
-//                    }
                     entryList.addAll(entries);
 
                     if (adapter != null) {
@@ -193,6 +185,17 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
 
     public void filterByTitle(String title) {
         // TODO: implement this
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
+            progressBar.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
 }

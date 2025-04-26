@@ -17,3 +17,8 @@ local.properties
 # API Keys and Secrets
 *.properties
 !gradle.properties
+
+# Execution files
+.gradle/
+**/executionHistory/
+**/executionHistory.bin

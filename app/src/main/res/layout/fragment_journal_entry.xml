@@ -1,116 +1,361 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/entryView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".JournalEntryFragment">
 
-    <ImageView
-        android:id="@+id/imageJournalEntryCover"
-        android:layout_width="125dp"
-        android:layout_height="187dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/pwrf"
-        app:layout_constraintBottom_toTopOf="@+id/textEntryTitle"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline5"
-        app:layout_constraintTop_toBottomOf="@+id/textJournalEntryDate" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/editModeIndicator"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.05" />
+        android:layout_margin="8dp"
+        android:layout_gravity="top"
+        android:visibility="gone"
+        app:cardElevation="4dp">
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.95" />
+        <TextView
+            android:id="@+id/editMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/adamina_regular"
+            android:gravity="center"
+            android:padding="8dp"
+            android:text="You are currently creating a new entry" />
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.95" />
+    </com.google.android.material.card.MaterialCardView>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline5"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        app:layout_constraintGuide_percent="0.05" />
+    <ScrollView
+        android:id="@+id/entryScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/textJournalEntryDate"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:gravity="start"
-        android:text="Month Day, Year"
-        android:textAppearance="@style/TextAppearance.AppCompat.Display2"
-        android:fontFamily="@font/adamina_regular"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline5"
-        app:layout_constraintTop_toTopOf="@+id/guideline2" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp">
 
-    <TextView
-        android:id="@+id/textJournalEntryDescription"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:orientation="vertical"
-        android:text="Description of activity"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:fontFamily="@font/adamina_regular"
-        app:layout_constraintBottom_toTopOf="@+id/textEntryComments"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline5" />
+            <androidx.cardview.widget.CardView
+                android:id="@+id/bookInfoCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp" >
 
-    <TextView
-        android:id="@+id/textJournalEntryAuthor"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="30dp"
-        android:text="FirstName LastName"
-        android:textAppearance="@style/TextAppearance.AppCompat.Small"
-        android:fontFamily="@font/adamina_regular"
-        app:layout_constraintBottom_toTopOf="@+id/textJournalEntryDescription"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintHorizontal_bias="0.505"
-        app:layout_constraintStart_toStartOf="@+id/guideline5" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/bookDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom|end"
+                    android:layout_margin="16dp"
+                    app:backgroundTint="@color/my_theme_journal_interest"
+                    app:tint="@color/md_theme_onPrimary"
+                    android:src="@drawable/ic_details"
+                    android:visibility="gone"/>
 
-    <TextView
-        android:id="@+id/textEntryTitle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:text="Book Title"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:fontFamily="@font/adamina_regular"
-        app:layout_constraintBottom_toTopOf="@+id/textJournalEntryAuthor"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline5" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp" >
 
-    <EditText
-        android:id="@+id/textEntryComments"
-        android:layout_width="0dp"
-        android:layout_height="148dp"
-        android:background="@drawable/outline_edittext"
-        android:cursorVisible="false"
-        android:ems="10"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:fontFamily="@font/adamina_regular"
-        android:gravity="start|top"
-        android:inputType="textMultiLine"
-        android:padding="5dp"
-        app:layout_constraintBottom_toTopOf="@+id/guideline3"
-        app:layout_constraintEnd_toStartOf="@+id/guideline4"
-        app:layout_constraintStart_toStartOf="@+id/guideline5" />
+                    <ImageView
+                        android:id="@+id/imageCover"
+                        android:layout_width="100dp"
+                        android:layout_height="150dp"
+                        android:contentDescription="Book Cover"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/book_cover_background" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:orientation="vertical" >
+
+                        <TextView
+                            android:id="@+id/entryBookTitle"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/adamina_regular"
+                            android:text="Book Title"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/textSeries"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/adamina_regular"
+                            android:text="SeriesName Number"
+                            android:textSize="14sp"
+                            android:textStyle="italic" />
+
+                        <TextView
+                            android:id="@+id/entryBookAuthor"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:fontFamily="@font/adamina_regular"
+                            android:text="FirstName LastName"
+                            android:textSize="16sp" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </androidx.cardview.widget.CardView>
+
+            <TextView
+                android:id="@+id/entryHeading"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/adamina_regular"
+                android:text="Reading Activity Details"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <!-- Date info, editable and not -->
+
+            <TextView
+                android:id="@+id/entryDateLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/adamina_regular"
+                android:text="Date"
+                android:textSize="16sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/dateLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/dateInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_journal"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:fontFamily="@font/adamina_regular"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/dateLayoutEditable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/dateInputEditable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_journal"
+                    android:fontFamily="@font/adamina_regular"
+                    android:inputType="text"
+                    android:visibility="gone" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Activity type info, editable and not -->
+
+            <TextView
+                android:id="@+id/activityLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/adamina_regular"
+                android:text="Activity"
+                android:textSize="16sp" />
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/activityCard"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp">
+
+                <Spinner
+                    android:id="@+id/activitySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_background_journal"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:padding="8dp"
+                    android:spinnerMode="dropdown" />
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/activityCardEditable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="0dp">
+
+                <Spinner
+                    android:id="@+id/activitySpinnerEditable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/spinner_background_journal"
+                    android:padding="8dp"
+                    android:spinnerMode="dropdown"
+                    android:visibility="gone" />
+
+            </androidx.cardview.widget.CardView>
+
+            <!-- Pages read info, editable and not -->
+
+            <TextView
+                android:id="@+id/pagesReadLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/adamina_regular"
+                android:text="Pages read"
+                android:textSize="16sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/pagesReadLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/pagesReadInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_journal"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:fontFamily="@font/adamina_regular"
+                    android:inputType="text"
+                    android:visibility="visible" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/pagesReadLayoutEditable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/pagesReadInputEditable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_journal"
+                    android:fontFamily="@font/adamina_regular"
+                    android:inputType="text"
+                    android:visibility="gone" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Comments, editable and not -->
+
+            <TextView
+                android:id="@+id/commentsLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/adamina_regular"
+                android:text="Comments"
+                android:textSize="16sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/commentsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:visibility="visible">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/commentsInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_journal"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:fontFamily="@font/adamina_regular"
+                    android:inputType="textMultiLine"
+                    android:visibility="visible" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/commentsLayoutEditable"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/commentsInputEditable"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_journal"
+                    android:fontFamily="@font/adamina_regular"
+                    android:inputType="textMultiLine"
+                    android:visibility="gone" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Edit/Submit button -->
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/journalEdit"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/adamina_regular"
+                android:textColor="@color/md_theme_onPrimary"
+                android:text="Edit"
+                android:textSize="16sp"
+                app:backgroundTint="@color/my_theme_journal_interest"
+                app:cornerRadius="8dp" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/journalSubmit"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="16dp"
+                android:fontFamily="@font/adamina_regular"
+                android:textColor="@color/md_theme_onPrimary"
+                android:text="Submit"
+                android:textSize="16sp"
+                app:backgroundTint="@color/my_theme_journal_interest"
+                android:visibility="gone"
+                app:cornerRadius="8dp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

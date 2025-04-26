@@ -1,6 +1,8 @@
 package com.example.bookishproject;
 
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +11,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -63,8 +66,10 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
 
         ImageView cover;
         TextView title, author, title2, author2, pubYear, genre, age, categories, series, series2;
+        View divider;
         private final List<Book> books;
         OnNoteListener onNoteListener;
+        CardView card;
         LinearLayout expContentLayout;
         LinearLayout collapsedLayout;
 
@@ -73,7 +78,10 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
             this.books = books;
             this.onNoteListener = listener;
 
+            card = binding.bookCardView;
+
             cover = binding.coverImage;
+            divider = binding.divider;
 
             title = binding.textTitle;
             author = binding.textAuthor;
@@ -144,7 +152,7 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
 
         // set data in cards
         if (book.getCoverUrl() != null && !book.getCoverUrl().isEmpty()) {
-            Glide.with(holder.itemView.getContext()).load(book.getCoverUrl()).placeholder(R.drawable.pwrf).error(R.drawable.pwrf).into(holder.cover);
+            Glide.with(holder.itemView.getContext()).load(book.getCoverUrl()).placeholder(R.drawable.book_cover_background).error(R.drawable.book_cover_background).into(holder.cover);
         }
         else {
             holder.cover.setImageResource(book.getCover());
@@ -181,6 +189,7 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
         holder.genre.setText("Genre: " + (book.getGenre() != null ? book.getGenre() : "Unknown"));
         holder.age.setText("Age: " + (book.getAgeRange() != null ? book.getAgeRange() : "Not specified"));
         if (book.getCategories() != null) {
+            holder.categories.setText("");
             holder.categories.append(String.join(",", book.getCategories()));
         }
 
@@ -188,6 +197,32 @@ public class RecyclerAdapterBooks extends RecyclerView.Adapter<RecyclerAdapterBo
         boolean isExpanded = position == expandedPosition;
         holder.expContentLayout.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         holder.collapsedLayout.setVisibility(isExpanded ? View.GONE : View.VISIBLE);
+
+        if (context instanceof MainActivity) {
+            int section = ((MainActivity) context).getCurrentSection();
+
+            int cardColor, textColor;
+
+            switch (section) {
+                case 1: // Books
+                    cardColor = context.getResources().getColor(R.color.my_theme_books_background, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_books_text, null);
+                    break;
+                case 2: // Recs
+                    cardColor = context.getResources().getColor(R.color.my_theme_recs_background, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_recs_text, null);
+                    break;
+                case 3: // Journal
+                    cardColor = context.getResources().getColor(R.color.my_theme_journal_background, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_journal_text, null);
+                    break;
+                default:
+                    cardColor = context.getResources().getColor(R.color.my_theme_main_super_light, null);
+                    textColor = context.getResources().getColor(R.color.my_theme_main_super_dark, null);
+            }
+
+            holder.card.setCardBackgroundColor(cardColor);
+        }
 
     }
 

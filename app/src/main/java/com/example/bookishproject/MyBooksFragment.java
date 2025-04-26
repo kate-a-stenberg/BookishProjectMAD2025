@@ -1,5 +1,7 @@
 package com.example.bookishproject;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -31,7 +33,7 @@ So it has to have a back button that goes to OpenBooksFragment
 Also, the long click does something different from in BooksFragment
 It uses view binding, a layout manager, a recycler view, a RecyclerAdapterBooks, a book list, layout elements, and a BookFirebaseHelper.
  */
-public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener{
+public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
 
     private FragmentMyBooksBinding binding;
     private LinearLayoutManager layoutManager;
@@ -73,6 +75,7 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        updateColors();
     }
 
     @Override
@@ -82,6 +85,8 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setToolbar(this);
         }
+
+        updateColors();
 
         loadBooks();
 
@@ -131,7 +136,7 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
         // create a new Entry with this book
         Entry entry = new Entry(book);
         // set the EntryType to Started
-        entry.setType(EntryType.STARTED);
+        entry.setType("Started");
         // get today's date and set the entry date to that
         LocalDate today = LocalDate.now();
         entry.setDate(new Date(today.getDayOfMonth(), today.getMonthValue(), today.getYear()));
@@ -202,6 +207,17 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
                 });
             }
         });
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
+            progressBar.setBackgroundColor(Color.TRANSPARENT);
+        }
     }
 
 }

@@ -10,7 +10,7 @@ import androidx.fragment.app.Fragment;
 
 public class ToolbarBuilder {
 
-    private ImageButton backButton, helpButton, searchButton, addButton, editButton;
+    private ImageButton backButton, helpButton, searchButton, addButton;
     private TextView searchInput;
     private Activity activity;
     private Navigator navigator;
@@ -37,7 +37,6 @@ public class ToolbarBuilder {
         helpButton = provider.getHelpButton();
         searchButton = provider.getSearchButton();
         addButton = provider.getAddButton();
-        editButton = provider.getEditButton();
         searchInput = provider.getSearchInput();
 
         navigator = provider.getNavigator();
@@ -47,13 +46,7 @@ public class ToolbarBuilder {
     }
 
     public void buildToolbar(Fragment fragment) {
-        if (fragment instanceof BookEditFragment) {
-            setBookEditToolbar((BookEditFragment) fragment);
-        }
-        else if (fragment instanceof BookFragment) {
-            setBookToolbar((BookFragment) fragment);
-        }
-        else if (fragment instanceof BookResultsFragment) {
+        if (fragment instanceof BookResultsFragment) {
             setBookResultsToolbar();
         }
         else if (fragment instanceof BookSearchFragment) {
@@ -61,6 +54,9 @@ public class ToolbarBuilder {
         }
         else if (fragment instanceof BooksFragment) {
             setBooksToolbar();
+        }
+        else if (fragment instanceof BookFragment) {
+            setBookToolbar();
         }
         else if (fragment instanceof HabitsFragment) {
             setHabitsToolbar();
@@ -80,9 +76,6 @@ public class ToolbarBuilder {
         else if (fragment instanceof MyBooksFragment) {
             setMyBooksToolbar();
         }
-        else if (fragment instanceof NewEntryFragment) {
-            setNewEntryToolbar();
-        }
         else if (fragment instanceof OpenBooksFragment) {
             setOpenBooksToolbar();
         }
@@ -97,36 +90,13 @@ public class ToolbarBuilder {
         }
     }
 
-    public void setBookEditToolbar(BookEditFragment fragment) {
+    public void setBookToolbar() {
 
         backButton.setVisibility(View.VISIBLE);
         helpButton.setVisibility(View.VISIBLE);
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
-
-        backButton.setOnClickListener(v -> {
-            if (fragment.getArguments() != null) {
-                Book book = fragment.getArguments().getParcelable("book");
-                navigator.navigateToBookFragment(book);
-            }
-        });
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Editing a Book")
-                .setMessage("Here is where you can edit a book's data. Enter the fields you want to change " +
-                        "or tap the '!' button for more detail.").setPositiveButton("Got it", null)
-                .show());
-    }
-
-    public void setBookToolbar(BookFragment fragment) {
-
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.VISIBLE);
 
         backButton.setOnClickListener(v -> navigator.navigateToBooksFragment());
 
@@ -134,13 +104,6 @@ public class ToolbarBuilder {
                 .setMessage("Here is where you can view a book's data. Tap the edit button to update or change the data.")
                 .setPositiveButton("Got it", null)
                 .show());
-
-        editButton.setOnClickListener(v -> {
-            if (fragment.getArguments() != null) {
-                Book book = fragment.getArguments().getParcelable("book");
-                navigator.navigateToBookEditFragment(book);
-            }
-        });
 
     }
 
@@ -151,7 +114,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToBookSearchFragment());
 
@@ -169,7 +131,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToBooksFragment());
 
@@ -183,11 +144,11 @@ public class ToolbarBuilder {
     public void setBooksToolbar() {
 
         backButton.setVisibility(View.GONE);
+        helpButton.setVisibility(View.GONE);
         helpButton.setVisibility(View.VISIBLE);
         searchInput.setVisibility(View.VISIBLE);
         searchButton.setVisibility(View.VISIBLE);
         addButton.setVisibility(View.VISIBLE);
-        editButton.setVisibility(View.GONE);
 
         helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Viewing all books")
                 .setMessage("Enter search information in the box below, tap the search button to search, " +
@@ -210,7 +171,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToRecsFragment());
 
@@ -228,7 +188,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.VISIBLE);
 
         backButton.setOnClickListener(v -> navigator.navigateToJournalFragment());
 
@@ -237,20 +196,16 @@ public class ToolbarBuilder {
                 .setPositiveButton("Got it", null)
                 .show());
 
-        editButton.setOnClickListener(v -> {
-            // TODO: add functionality to edit a journal entry
-        });
-
     }
 
     public void setJournalToolbar() {
 
         backButton.setVisibility(View.GONE);
+        helpButton.setVisibility(View.GONE);
         helpButton.setVisibility(View.VISIBLE);
         searchInput.setVisibility(View.VISIBLE);
         searchButton.setVisibility(View.VISIBLE);
         addButton.setVisibility(View.VISIBLE);
-        editButton.setVisibility(View.GONE);
 
         helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Reading journal")
                 .setMessage("Tap and hold to view a journal entry details, filter by title/author, or add a new entry.")
@@ -272,7 +227,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToRecsFragment());
 
@@ -290,7 +244,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToMatchSearchFragment());
 
@@ -308,7 +261,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToRecsFragment());
 
@@ -326,7 +278,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.VISIBLE);
         searchButton.setVisibility(View.VISIBLE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToOpenBooksFragment());
 
@@ -344,24 +295,6 @@ public class ToolbarBuilder {
 
     }
 
-    public void setNewEntryToolbar() {
-
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
-
-        backButton.setOnClickListener(v -> navigator.navigateToOpenBooksFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("New Journal Entry")
-                .setMessage("Enter the information for this reading activity, then tap to save.")
-                .setPositiveButton("Got it", null)
-                .show());
-
-    }
-
     public void setOpenBooksToolbar() {
 
         backButton.setVisibility(View.VISIBLE);
@@ -369,7 +302,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.VISIBLE);
         searchButton.setVisibility(View.VISIBLE);
         addButton.setVisibility(View.VISIBLE);
-        editButton.setVisibility(View.GONE);
 
         backButton.setOnClickListener(v -> navigator.navigateToJournalFragment());
 
@@ -389,11 +321,11 @@ public class ToolbarBuilder {
     public void setRecsToolbar() {
 
         backButton.setVisibility(View.GONE);
+        helpButton.setVisibility(View.GONE);
         helpButton.setVisibility(View.VISIBLE);
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
 
         helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Recommendations")
                 .setMessage("Choose a recommendation strategy.")
@@ -408,7 +340,6 @@ public class ToolbarBuilder {
         searchInput.setVisibility(View.GONE);
         searchButton.setVisibility(View.GONE);
         addButton.setVisibility(View.GONE);
-        editButton.setVisibility(View.GONE);
     }
 
 }

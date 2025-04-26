@@ -2,67 +2,66 @@
 <androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/journalCardView"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp"
-    android:backgroundTint="@color/md_theme_surfaceVariant"
     app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
+    app:cardElevation="4dp"
     app:contentPadding="4dp">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp">
+        android:padding="10dp">
 
         <ImageView
             android:id="@+id/coverImage"
-            android:layout_width="100dp"
-            android:layout_height="150dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_width="50dp"
+            android:layout_height="75dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:srcCompat="@tools:sample/backgrounds/scenic" />
+            android:background="@drawable/book_cover_background" />
 
         <LinearLayout
             android:id="@+id/collapsedContentLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
             android:orientation="vertical"
-            android:visibility="visible"
+            android:visibility="gone"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/coverImage"
-            app:layout_constraintTop_toTopOf="@+id/coverImage">
+            app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/textJournalTitle"
+                android:id="@+id/textTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:text="TextView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:fontFamily="@font/adamina_regular"
-                />
+                android:text="Book Title"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/textJournalDate"
+                android:id="@+id/textActivity"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:text="TextView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:fontFamily="@font/adamina_regular"
-                />
+                android:text="Description of reading activity here"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/textJournalActivity"
+                android:id="@+id/textDate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:text="TextView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:fontFamily="@font/adamina_regular"
-                />
+                android:text="Month Day, Year"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textSize="14sp"
+                android:textStyle="italic" />
 
         </LinearLayout>
 
@@ -71,64 +70,77 @@
             android:id="@+id/expandedContentLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="25dp"
-            android:layout_marginBottom="25dp"
+            android:layout_marginLeft="10dp"
             android:orientation="vertical"
-            android:visibility="gone"
+            android:visibility="visible"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/coverImage"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/textJournalTitle2"
+                android:id="@+id/textTitle2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:text="TextView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Display1"
                 android:fontFamily="@font/adamina_regular"
-                />
+                android:text="Book Title"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="20sp"
+                android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/textJournalAuthor"
+                android:id="@+id/textSeries"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
+                android:fontFamily="@font/adamina_regular"
+                android:text="SeriesName Number"
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textSize="16sp"
+                android:textStyle="italic" />
+
+            <TextView
+                android:id="@+id/textAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/adamina_regular"
                 android:text="FirstName LastName"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:fontFamily="@font/adamina_regular"
-                />
+                android:textColor="@color/md_theme_onSurfaceVariant"
+                android:textSize="14sp" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/my_theme_main_medium" />
 
             <TextView
-                android:id="@+id/textJournalDate2"
+                android:id="@+id/textDate2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:text="TextView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:fontFamily="@font/adamina_regular"
-                />
+                android:text="Month Day, Year"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="18sp" />
 
             <TextView
-                android:id="@+id/textJournalActivity2"
+                android:id="@+id/textActivity2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:text="TextView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:fontFamily="@font/adamina_regular"
-                />
+                android:text="Description of reading activity here"
+                android:textColor="@color/md_theme_onSurface"
+                android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/textJournalDetails"
+                android:id="@+id/textDetails"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingStart="10dp"
-                android:text="TextView"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:fontFamily="@font/adamina_regular"
-                />
+                android:text="TextView"
+                android:textStyle="italic"
+                android:textSize="14sp" />
 
             <!-- Add more expanded content views as needed -->
 

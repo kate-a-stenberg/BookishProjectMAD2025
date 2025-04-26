@@ -11,6 +11,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,8 +55,8 @@ public class JournalFirebaseHelper {
     Method to get all the entries from the database
      */
     public void getAllEntries(FirebaseCallback callback) {
-        // Add a new ValueEventListener--listens for when something in the database changes
-        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Query entries ordered by timestamp (oldest first)
+        dbRef.orderByChild("timestamp").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 // create a new array list of Entries
@@ -71,6 +72,9 @@ public class JournalFirebaseHelper {
                     }
                 }
 
+                Collections.reverse(entries);  // Reverse to get newest first
+                callback.onCallback(entries);
+
                 // give the entries list to the app
                 callback.onCallback(entries);
             }
@@ -81,6 +85,36 @@ public class JournalFirebaseHelper {
                 callback.onCallback(new ArrayList<>());
             }
         });
+
+
+
+//        // Add a new ValueEventListener--listens for when something in the database changes
+//        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                // create a new array list of Entries
+//                List<Entry> entries = new ArrayList<>();
+//
+//                // go through all the data points in the database
+//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+//                    // create an Entry out of that data point
+//                    Entry entry = snapshot.getValue(Entry.class);
+//                    // if the entry isn't null, add it to the entry list
+//                    if (entry != null) {
+//                        entries.add(entry);
+//                    }
+//                }
+//
+//                // give the entries list to the app
+//                callback.onCallback(entries);
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Log.e("JournalFirebaseHelper", "Error fetching entries: " + error.getMessage());
+//                callback.onCallback(new ArrayList<>());
+//            }
+//        });
     }
 
     public void getEntriesForBook(String bookId, FirebaseCallback callback) {

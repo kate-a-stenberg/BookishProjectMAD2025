@@ -1,5 +1,7 @@
 package com.example.bookishproject;
 
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -27,7 +29,7 @@ This class represents a MatchResultsFragment.
 A match results fragment displays the results of a user's Match search in a recycler view.
 It uses view binding, a recycler view, a RecyclerAdapterBooks, a list of results, a layout manager, layout fields and elements, and
  */
-public class MatchResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
+public class MatchResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
 
     private FragmentMatchResultsBinding binding;
     private RecyclerView rView;
@@ -79,6 +81,7 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        updateColors();
     }
 
     @Override
@@ -86,6 +89,7 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity)getActivity()).setToolbar(this);
+            updateColors();
         }
     }
 
@@ -128,6 +132,14 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
     @Override
     public void onNoteLongClick(Book book) {
         // TODO: this will navigate to a book display, but it has to be different from BookFragment so that it can have a different back button that goes back to MatchResultsFragment rather than BooksFragment
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+        }
     }
 
 }

@@ -19,7 +19,7 @@ This is a class for a BookSearchFragment.
 A BookSearchFragment allows the user to enter information to create a query to search through an API.
 It has view binding and layout fields and elements.
  */
-public class BookSearchFragment extends Fragment {
+public class BookSearchFragment extends Fragment implements ColorUpdatable {
 
     private FragmentBookSearchBinding binding;
     private EditText inputTitle, inputAuthor;
@@ -61,6 +61,8 @@ public class BookSearchFragment extends Fragment {
         // the search button will search
         buttonSearch.setOnClickListener(v -> performSearch());
 
+        updateColors();
+
     }
 
     @Override
@@ -68,6 +70,7 @@ public class BookSearchFragment extends Fragment {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity)getActivity()).setToolbar(this);
+            updateColors();
         }
     }
 
@@ -110,6 +113,16 @@ public class BookSearchFragment extends Fragment {
         if (getActivity() instanceof MainActivity) {
             // then ask the MainActivity to go to a BookResultsFragment using this query to populate its search
             ((MainActivity)getActivity()).getNavigator().navigateToBookResultsFragment(query);
+        }
+    }
+
+    @Override
+    public void updateColors() {
+        if (getActivity() instanceof MainActivity) {
+            MainActivity activity = (MainActivity) getActivity();
+            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+
+            binding.buttonBookSearch.setBackgroundColor(activity.currentInterestColor);
         }
     }
 

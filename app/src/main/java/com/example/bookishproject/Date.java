@@ -6,9 +6,11 @@ A Date has a day, a month, and a year
  */
 public class Date {
 
-    private final int day;
-    private final int month;
-    private final int year;
+    private int day;
+    private int month;
+    private int year;
+
+    public Date() {}
 
     public Date(int day, int month, int year) {
         this.day = day;

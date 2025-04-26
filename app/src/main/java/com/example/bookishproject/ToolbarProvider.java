@@ -10,6 +10,5 @@ public interface ToolbarProvider {
     public TextView getSearchInput();
     public ImageButton getSearchButton();
     public ImageButton getAddButton();
-    public ImageButton getEditButton();
 
 }

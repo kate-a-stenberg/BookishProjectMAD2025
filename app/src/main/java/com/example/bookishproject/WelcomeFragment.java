@@ -15,7 +15,7 @@ This class represents the Welcome Fragment.
 This is the landing or information page when someone opens the app.
 It's basically just text and instructions.
  */
-public class WelcomeFragment extends Fragment {
+public class WelcomeFragment extends Fragment implements ColorUpdatable {
 
     FragmentWelcomeBinding binding;
 
@@ -43,5 +43,10 @@ public class WelcomeFragment extends Fragment {
         if (getActivity() instanceof MainActivity) {
             ((MainActivity)getActivity()).setToolbar(this);
         }
+    }
+
+    @Override
+    public void updateColors() {
+
     }
 }
