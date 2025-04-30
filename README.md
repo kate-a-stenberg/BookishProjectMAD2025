@@ -18,12 +18,15 @@ FUTURE DIRECTIONS:
 - filter by genre, age range
 - search by title or author
 - sort alphabetically or by date added
+- organize into packages
 - improve welcome page
 - dedicated landscape layouts
 - favorites
 - book menu page
 - owned books
+- get rid of cloned MyBooksFragment
 - update Journal UI
+- centralize Back handling
 - transitions
 
 VERSIONS:
