@@ -27,7 +27,7 @@ FUTURE DIRECTIONS:
 - transitions
 
 VERSIONS:
-1.0: initial version
-1.1: (don't remember)
-1.2: (don't remember)
-1.3: added book editing, merged create/view entry fragments, changed colors, updated Journal/Entry UI
+- 1.0: initial version
+- 1.1: (don't remember)
+- 1.2: (don't remember)
+- 1.3: added book editing, merged create/view entry fragments, changed colors, updated Journal/Entry UI
