@@ -14,7 +14,6 @@ Users can get book recommendations. Currently the only option for this implement
 Users can log their reading activity by creating entries in the reading journal. The a journal entry has attributes date, timestamp, book, activity type, pages read (if applicable), and comments. These entries are stored in the Firebase database, and the Journal screen displays the user's entries by date and time.
 
 FUTURE DIRECTIONS:
-- delete book
 - filter by genre, age range
 - search by title or author
 - sort alphabetically or by date added
@@ -25,7 +24,6 @@ FUTURE DIRECTIONS:
 - book menu page
 - owned books
 - get rid of cloned MyBooksFragment
-- update Journal UI
 - centralize Back handling
 - transitions
 
