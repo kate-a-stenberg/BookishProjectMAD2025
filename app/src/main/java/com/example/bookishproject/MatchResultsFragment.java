@@ -35,8 +35,7 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
     private FragmentMatchResultsBinding binding;
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
-    private List<Book> results = new ArrayList<>();
-    private GridLayoutManager gridLayoutManager;
+    private final List<Book> results = new ArrayList<>();
     private TextView noResults;
 
     /*
@@ -88,7 +87,7 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).setToolbar(this);
+            ((MainActivity) getActivity()).setToolbar((HostFragment) this.getParentFragment());
         }
     }
 
@@ -99,7 +98,7 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         rView.setAdapter(adapter);
 
         // Set up layout manager as a field to access later
-        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(getContext(), 3);
         rView.setLayoutManager(gridLayoutManager);
     }
 

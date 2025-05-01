@@ -1,20 +1,22 @@
 package com.example.bookishproject;
 
+import android.graphics.Rect;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RatingBar;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,7 +28,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
 import java.time.LocalDate;
@@ -35,21 +36,23 @@ import java.util.List;
 
 /*
 A class for a BookFragment.
-BookFragment is a non-editable view of a Book object's full attributes.
+A BookFragment has two modes: view-only and editable.
+View-only mode displays information about a Book object's attributes.
+Editable mode allows the user to change the book's attributes or delete the book from their collection.
 It uses view binding, a Book object, and fields from the fragment layout.
-It also has a static final variable
+It also has a static final variable.
  */
-public class BookFragment extends Fragment {
+public class BookDetailFragment extends Fragment {
 
     // this variable is the name of the Bundle that contains information on the Book whose information to populate its fields with
     // it receives this from BooksFragment
     private static final String ARG_BOOK = "book";
 
-    FragmentBookBinding binding;
-    private Book book;
-    private TextView title, author, bookDetails, seriesInput, seriesInputEdit, numberInput, numberInputEdit, pubDateInput, pubDateInputEdit, themesInput, themesInputEdit, synopsis, sheetTitle, review, editWarning, deleteLabel;
-    private TextInputLayout seriesLayout, seriesLayoutEditable, numberLayout, numberLayoutEditable, pubDateLayout, pubDateLayoutEditable, themesLayout, themesLayoutEditable, synopsisLayout;
+    private FragmentBookBinding binding;
+    private TextView title, author, bookDetails, seriesInput, seriesInputEdit, numberInput, numberInputEdit, pubDateInput, pubDateInputEdit, themesInput, themesInputEdit, synopsis, sheetTitle, review, deleteLabel;
+    private TextInputLayout seriesLayout, seriesLayoutEditable, numberLayout, numberLayoutEditable, pubDateLayout, pubDateLayoutEditable, themesLayout, themesLayoutEditable;
     private CardView genreCard, genreCardEditable, ageRangeCard, ageRangeCardEditable, editMessage;
+    private ScrollView scrollView;
     private RadioButton unread, currentlyReading, read, dnf;
     private Spinner genre, genreEdit, ageRange, ageRangeEdit;
     private ImageView cover;
@@ -58,11 +61,12 @@ public class BookFragment extends Fragment {
     private Button submit, delete;
     private ExtendedFloatingActionButton edit, save;
     private BottomSheetBehavior<View> bottomSheetBehavior;
+    private Book book;
     private BookFirebaseHelper fbHelper;
 
 
     // a constructor using a Book object as a parameter / information source
-    public BookFragment (Book book) {
+    public BookDetailFragment(Book book) {
         this.book = book;
     }
 
@@ -97,9 +101,7 @@ public class BookFragment extends Fragment {
         author = binding.authorInput;
         synopsis = binding.synopsisInput;
         editMessage = binding.editModeIndicator;
-        editWarning = binding.editMessage;
-        synopsisLayout = binding.synopsisInputLayout;
-
+        scrollView = binding.scrollView2;
         details = binding.myDetails;
 
         // EDITABLE - MAIN VIEW
@@ -174,16 +176,12 @@ public class BookFragment extends Fragment {
 
         title.setText(book.getTitle());
         author.setText(book.getAuthor());
-
         synopsis.setText(book.getSynopsis());
-
-        details.setOnClickListener(v -> {
-            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-        });
-
         sheetTitle.setText(book.getTitle());
         review.setText(book.getReview());
+        rating.setRating(book.getRating());
 
+        // set the status radio button group based on the book's status
         if (book.getStatus() != null && !book.getStatus().isEmpty()) {
             if (book.getStatus().equals("Read")) {
                 read.setChecked(true);
@@ -199,12 +197,18 @@ public class BookFragment extends Fragment {
             }
         }
 
-        rating.setRating(book.getRating());
+        // set operations for the "My Details" button
+        details.setOnClickListener(v -> {
+            // pull up the "my details" bottom sheet
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+        });
 
+        // set operations for the "Save my details" button
         submit.setOnClickListener(v -> {
+            // remember the book's previous status
             String previousStatus = book.getStatus();
+            // but also plan the new status based on which radio group button is checked
             String newStatus;
-
             if (unread.isChecked()) {
                 newStatus = "Want to read";
             }
@@ -221,12 +225,16 @@ public class BookFragment extends Fragment {
                 newStatus = "";
             }
 
+            // if there has been a status change
             if (!previousStatus.equals(newStatus)) {
 
+                // we gotta make a new entry for our reading journal to track the activity!
                 Entry newEntry = new Entry(book);
+                // set the date to today
                 LocalDate today = LocalDate.now();
                 newEntry.setDate(new Date(today.getDayOfMonth(), today.getMonthValue(), today.getYear()));
 
+                // set the activity type for the entry based on the new status
                 if (newStatus.equals("Currently reading")) {
                     newEntry.setType("Started");
                 }
@@ -237,18 +245,23 @@ public class BookFragment extends Fragment {
                     newEntry.setType("Abandoned");
                 }
 
+                // update the entry's description based on the activity type
                 newEntry.updateDescription();
+                // add the entry to our database
                 JournalFirebaseHelper fbHelper = new JournalFirebaseHelper();
                 fbHelper.addEntry(newEntry);
 
             }
 
+            // set the book's rating
             book.setRating(rating.getRating());
 
+            // set the book's review
             if (!review.getText().toString().isEmpty()) {
                 book.setReview(review.getText().toString());
             }
 
+            // update the book in the database
             fbHelper.updateBook(book, new BookFirebaseHelper.FirebaseCallback() {
                 @Override
                 public void onCallback(List<Book> bookList) {
@@ -261,86 +274,124 @@ public class BookFragment extends Fragment {
                     // moves operations from a background thread to the UI thread to update the recycler view with Books
                     getActivity().runOnUiThread(() -> {
 
+                        // alert the user
                         Toast.makeText(getContext(), "Book updated successfully!", Toast.LENGTH_SHORT).show();
+                        // put away the bottom sheet
                         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
                     });
-
                 }
             });
         });
 
+        // set operations for the "edit" button
         edit.setOnClickListener(v -> {
+            // change to edit mode
             setEditable();
         });
 
+        // set operations for the "save" button
         save.setOnClickListener(v -> {
 
+            // we are currently in edit mode
+
+            // if the user has input a series
             if (seriesInputEdit != null) {
                 if (seriesInputEdit.getText() != null && !seriesInputEdit.getText().toString().isEmpty()) {
+                    // set this as the book's series
                     book.setSeries(seriesInputEdit.getText().toString());
                 }
             }
 
+            // if the user has input a number
             if (numberInputEdit != null && numberInputEdit.getText() != null && !numberInputEdit.getText().toString().isEmpty()) {
                 try {
+                    // set this as the book's number
                     book.setNumber(Integer.parseInt(numberInputEdit.getText().toString()));
                 } catch (NumberFormatException e) {
+                    // but make sure it's an integer
                     Toast.makeText(getContext(), "Please enter a valid number", Toast.LENGTH_SHORT).show();
                 }
             }
 
+            // if the user has entered a genre
             if (!genreEdit.getSelectedItem().toString().equals("Select genre...")){
+                // set this as the book's genre
                 book.setGenre(genreEdit.getSelectedItem().toString());
             }
-            else {
-                book.setGenre(genreEdit.getSelectedItem().toString());
-            }
-            ArrayAdapter<CharSequence> genreAdapter = ArrayAdapter.createFromResource(getContext(), R.array.genre_array, R.layout.spinner_item);
-            genreAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
-            genre.setAdapter(genreAdapter);
-            if (book.getGenre() != null && !book.getGenre().isEmpty()) {
-                for (int i = 0; i < genreAdapter.getCount(); i++) {
-                    if (genreAdapter.getItem(i).toString().equals(book.getGenre())) {
-                        genre.setSelection(i);
-                        break;
-                    }
-                }
-            }
+
+//            // set up a spinner array adapter so we can interact with the spinner
+//            // user the strings.xml genre_array values as the options
+//            // use layout/spinner_item as the layout for the spinner items
+//            ArrayAdapter<CharSequence> genreAdapter = ArrayAdapter.createFromResource(getContext(), R.array.genre_array, R.layout.spinner_item);
+//            // use the spinner_dropdown_item_books as the dropdown view
+//            genreAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
+//            // set this adapter as our view-only spinner adapter
+//            genre.setAdapter(genreAdapter);
+//            // if the book has a genre
+//            if (book.getGenre() != null && !book.getGenre().isEmpty()) {
+//                // check each item in the view-only genre spinner to see if it matches the book genre
+//                for (int i = 0; i < genreAdapter.getCount(); i++) {
+//                    if (genreAdapter.getItem(i).toString().equals(book.getGenre())) {
+//                        // if it does, set that item to the selected item of the spinner
+//                        genre.setSelection(i);
+//                        break;
+//                    }
+//                }
+//            }
+            // disable the view-only genre spinner
             genre.setEnabled(false);
 
+            // if the user has entered an age range
             if (!ageRangeEdit.getSelectedItem().toString().equals("Select age range...")){
+                // set this as the book's age range
                 book.setAgeRange(ageRangeEdit.getSelectedItem().toString());
             }
-            else {
-                book.setAgeRange(ageRangeEdit.getSelectedItem().toString());
-            }
-            ArrayAdapter<CharSequence> ageAdapter = ArrayAdapter.createFromResource(getContext(), R.array.age_array, R.layout.spinner_item);
-            ageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
-            ageRange.setAdapter(ageAdapter);
-            if (book.getAgeRange() != null && !book.getAgeRange().isEmpty()) {
-                for (int i = 0; i < ageAdapter.getCount(); i++) {
-                    if (ageAdapter.getItem(i).toString().equals(book.getAgeRange())) {
-                        ageRange.setSelection(i);
-                        break;
-                    }
-                }
-            }
+
+//            // set up a spinner array adapter so we can interact with the spinner
+//            // user the strings.xml age_array values as the options
+//            // use layout/spinner_item as the layout for the spinner items
+//            ArrayAdapter<CharSequence> ageAdapter = ArrayAdapter.createFromResource(getContext(), R.array.age_array, R.layout.spinner_item);
+//            // use the spinner_dropdown_item_books as the dropdown view
+//            ageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
+//            // set this adapter as our view-only age range adapter
+//            ageRange.setAdapter(ageAdapter);
+//            // if the book has an age range
+//            if (book.getAgeRange() != null && !book.getAgeRange().isEmpty()) {
+//                // check each item in the view-only age range spinner to see if it matches the book age range
+//                for (int i = 0; i < ageAdapter.getCount(); i++) {
+//                    if (ageAdapter.getItem(i).toString().equals(book.getAgeRange())) {
+//                        // if it does, set that item to the selected item of the spinner
+//                        ageRange.setSelection(i);
+//                        break;
+//                    }
+//                }
+//            }
+            // disable the view-only age range spinner
             ageRange.setEnabled(false);
 
+            // if the user has input themes
             if (themesInputEdit != null) {
                 if (themesInputEdit.getText() != null && !themesInputEdit.getText().toString().isEmpty()) {
+                    // convert the input themes to a string
                     String categoriesString = themesInputEdit.getText().toString();
+                    // make a new themes list
                     List<String> bookCategories = new ArrayList<>();
+                    // split the input string by commas and store them in an array
                     String[] categoriesArray = categoriesString.split(",");
+                    // for each item in the array
                     for (String category : categoriesArray) {
+                        // remove the whitespace
                         category.trim();
+                        // add it to the themes list
                         bookCategories.add(category);
                     }
+                    // set this themes list as the book's categories
                     book.setCategories(bookCategories);
                 }
             }
 
+            // update the book in the database
             fbHelper.updateBook(book, new BookFirebaseHelper.FirebaseCallback() {
                 @Override
                 public void onCallback(List<Book> bookList) {
@@ -354,19 +405,23 @@ public class BookFragment extends Fragment {
                     getActivity().runOnUiThread(() -> {
 
                         Toast.makeText(getContext(), "Book updated successfully!", Toast.LENGTH_SHORT).show();
-
+                        // switch to view-only mode
                         setViewOnly();
 
                     });
-
                 }
             });
 
         });
 
+        // set operations for delete button
         delete.setOnClickListener(v -> {
+            // get the api id of the book
             String id = book.getApiId();
 
+            // dialog box: do you really want to delete this book?
+            // if no ("cancel"), close the box and never mind
+            // if yes ("delete"), delete the book from the database and go back
             MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity())
                     .setTitle("Delete book?" )
                     .setMessage("Do you really want to delete \"" + book.getTitle() + "\" from your collection? Your journal entries for this book will be preserved in your reading log.")
@@ -384,27 +439,29 @@ public class BookFragment extends Fragment {
 
         });
 
+        // make sure the keyboard doesn't get in the way
+        setupKeyboardAdjustment(view);
+
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.setToolbar(this);
+            ((MainActivity) getActivity()).setToolbar((HostFragment) this.getParentFragment());
         }
     }
 
+    /*
+    Method to set a BookFragment to edit mode
+    This will set all the view-only elements to gone and all the editable elements to visible
+    Also will set all the editable elements' values to the books values where present
+    Also will show the save button
+     */
     public void setEditable() {
+
+        // set all the view-only fields to gone
         bookDetails.setText("Edit book details");
-
-//        if (book.getSeries() != null && !book.getSeries().isEmpty()) {
-//            series.setText(book.getSeries());
-//            if (book.getNumber() != null && book.getNumber() > 0) {
-//                series.append(" #" + book.getNumber().toString());
-//            }
-//        }
-
         seriesInput.setVisibility(View.GONE);
         seriesLayout.setVisibility(View.GONE);
         numberInput.setVisibility(View.GONE);
@@ -417,13 +474,28 @@ public class BookFragment extends Fragment {
         genreCard.setVisibility(View.GONE);
         ageRange.setVisibility(View.GONE);
         ageRangeCard.setVisibility(View.GONE);
-
         edit.setVisibility(View.GONE);
 
+        // set all the edit-mode fields to visible
         editMessage.setVisibility(View.VISIBLE);
-
         seriesLayoutEditable.setVisibility(View.VISIBLE);
         seriesInputEdit.setVisibility(View.VISIBLE);
+        numberLayoutEditable.setVisibility(View.VISIBLE);
+        numberInputEdit.setVisibility(View.VISIBLE);
+        pubDateLayoutEditable.setVisibility(View.VISIBLE);
+        pubDateInputEdit.setVisibility(View.VISIBLE);
+        themesLayoutEditable.setVisibility(View.VISIBLE);
+        themesInputEdit.setVisibility(View.VISIBLE);
+        genreCardEditable.setVisibility(View.VISIBLE);
+        genreEdit.setVisibility(View.VISIBLE);
+        ageRangeCardEditable.setVisibility(View.VISIBLE);
+        ageRangeEdit.setVisibility(View.VISIBLE);
+        save.setVisibility(View.VISIBLE);
+        delete.setVisibility(View.VISIBLE);
+        deleteLabel.setVisibility(View.VISIBLE);
+
+        // Populate all the text fields with the book's information
+
         if (book.getSeries() != null && !book.getSeries().isEmpty()) {
             seriesInputEdit.setText(book.getSeries());
         }
@@ -431,8 +503,6 @@ public class BookFragment extends Fragment {
             seriesInputEdit.setHint("No series set");
         }
 
-        numberLayoutEditable.setVisibility(View.VISIBLE);
-        numberInputEdit.setVisibility(View.VISIBLE);
         if (book.getNumber() != null && book.getNumber() > 0) {
             numberInputEdit.setText(book.getNumber().toString());
         }
@@ -440,8 +510,6 @@ public class BookFragment extends Fragment {
             numberInputEdit.setHint("0");
         }
 
-        pubDateLayoutEditable.setVisibility(View.VISIBLE);
-        pubDateInputEdit.setVisibility(View.VISIBLE);
         if (book.getPubYear() != null && !book.getPubYear().isEmpty()) {
             pubDateInputEdit.setText(book.getPubYear());
         }
@@ -449,8 +517,6 @@ public class BookFragment extends Fragment {
             pubDateInputEdit.setHint("No set publication date");
         }
 
-        themesLayoutEditable.setVisibility(View.VISIBLE);
-        themesInputEdit.setVisibility(View.VISIBLE);
         if (book.getCategories() != null && !book.getCategories().isEmpty()) {
             themesInputEdit.setText(String.join(",", book.getCategories()));
         }
@@ -458,8 +524,6 @@ public class BookFragment extends Fragment {
             themesInputEdit.setHint("No tags set");
         }
 
-        genreCardEditable.setVisibility(View.VISIBLE);
-        genreEdit.setVisibility(View.VISIBLE);
         ArrayAdapter<CharSequence> genreAdapter = ArrayAdapter.createFromResource(getContext(), R.array.genre_array, R.layout.spinner_item);
         genreAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
         genreEdit.setAdapter(genreAdapter);
@@ -472,8 +536,6 @@ public class BookFragment extends Fragment {
             }
         }
 
-        ageRangeCardEditable.setVisibility(View.VISIBLE);
-        ageRangeEdit.setVisibility(View.VISIBLE);
         ArrayAdapter<CharSequence> ageRangeAdapter = ArrayAdapter.createFromResource(getContext(), R.array.age_array, R.layout.spinner_item);
         ageRangeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
         ageRangeEdit.setAdapter(ageRangeAdapter);
@@ -486,12 +548,13 @@ public class BookFragment extends Fragment {
             }
         }
 
-        save.setVisibility(View.VISIBLE);
-        delete.setVisibility(View.VISIBLE);
-        deleteLabel.setVisibility(View.VISIBLE);
+
 
     }
 
+    /*
+    Method to set fragment to view-only
+     */
     public void setViewOnly() {
         bookDetails.setText("Book details");
 
@@ -505,11 +568,12 @@ public class BookFragment extends Fragment {
 //            series.setVisibility(View.GONE);
 //        }
 
+        // set editable fields/elements to gone
+
         seriesLayoutEditable.setVisibility(View.GONE);
         numberLayoutEditable.setVisibility(View.GONE);
         pubDateLayoutEditable.setVisibility(View.GONE);
         themesLayoutEditable.setVisibility(View.GONE);
-
         seriesInputEdit.setVisibility(View.GONE);
         numberInputEdit.setVisibility(View.GONE);
         pubDateInputEdit.setVisibility(View.GONE);
@@ -518,14 +582,29 @@ public class BookFragment extends Fragment {
         ageRangeEdit.setVisibility(View.GONE);
         genreCardEditable.setVisibility(View.GONE);
         ageRangeCardEditable.setVisibility(View.GONE);
-
         save.setVisibility(View.GONE);
         editMessage.setVisibility(View.GONE);
         delete.setVisibility(View.GONE);
         deleteLabel.setVisibility(View.GONE);
 
+        // set view-only fields and elements to visible
+
         seriesLayout.setVisibility(View.VISIBLE);
         seriesInput.setVisibility(View.VISIBLE);
+        numberLayout.setVisibility(View.VISIBLE);
+        numberInput.setVisibility(View.VISIBLE);
+        pubDateLayout.setVisibility(View.VISIBLE);
+        pubDateInput.setVisibility(View.VISIBLE);
+        themesLayout.setVisibility(View.VISIBLE);
+        themesInput.setVisibility(View.VISIBLE);
+        genreCard.setVisibility(View.VISIBLE);
+        genre.setVisibility(View.VISIBLE);
+        ageRangeCard.setVisibility(View.VISIBLE);
+        ageRange.setVisibility(View.VISIBLE);
+        edit.setVisibility(View.VISIBLE);
+
+        // populate view-only fields with book's attributes
+
         if (book.getSeries() != null && !book.getSeries().isEmpty()) {
             seriesInput.setText(book.getSeries());
         }
@@ -533,8 +612,6 @@ public class BookFragment extends Fragment {
             seriesInput.setHint("No series set");
         }
 
-        numberLayout.setVisibility(View.VISIBLE);
-        numberInput.setVisibility(View.VISIBLE);
         if (book.getNumber() != null && book.getNumber() > 0) {
             numberInput.setText(book.getNumber().toString());
         }
@@ -542,8 +619,6 @@ public class BookFragment extends Fragment {
             numberInput.setHint("0");
         }
 
-        pubDateLayout.setVisibility(View.VISIBLE);
-        pubDateInput.setVisibility(View.VISIBLE);
         if (book.getPubYear() != null && !book.getPubYear().isEmpty()) {
             pubDateInput.setText(book.getPubYear());
         }
@@ -551,8 +626,6 @@ public class BookFragment extends Fragment {
             pubDateInput.setHint("No publication date found");
         }
 
-        themesLayout.setVisibility(View.VISIBLE);
-        themesInput.setVisibility(View.VISIBLE);
         if (book.getCategories() != null && !book.getCategories().isEmpty()) {
             themesInput.setText(String.join(",", book.getCategories()));
         }
@@ -560,8 +633,6 @@ public class BookFragment extends Fragment {
             themesInput.setHint("No tags assigned to this book");
         }
 
-        genreCard.setVisibility(View.VISIBLE);
-        genre.setVisibility(View.VISIBLE);
         ArrayAdapter<CharSequence> genreAdapter = ArrayAdapter.createFromResource(getContext(), R.array.genre_array, R.layout.spinner_item);
         genreAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
         genre.setAdapter(genreAdapter);
@@ -575,8 +646,6 @@ public class BookFragment extends Fragment {
         }
         genre.setEnabled(false);
 
-        ageRangeCard.setVisibility(View.VISIBLE);
-        ageRange.setVisibility(View.VISIBLE);
         ArrayAdapter<CharSequence> ageRangeAdapter = ArrayAdapter.createFromResource(getContext(), R.array.age_array, R.layout.spinner_item);
         ageRangeAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
         ageRange.setAdapter(ageRangeAdapter);
@@ -590,9 +659,43 @@ public class BookFragment extends Fragment {
         }
         ageRange.setEnabled(false);
 
-        edit.setVisibility(View.VISIBLE);
-
     }
 
+    /*
+    Method to ensure keyboard doesn't block view
+     */
+    private void setupKeyboardAdjustment(View rootView) {
+
+        // create listener for ViewTreeObserver - monitors when layout changes occur (i.e., when a keyboard appears or disappears)
+        rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+
+                // create new rectangle
+                Rect r = new Rect();
+                // fill rectangle with current visible area of window
+                rootView.getWindowVisibleDisplayFrame(r);
+                // get full heigh of window screen
+                int screenHeight = rootView.getRootView().getHeight();
+                // use these two measurements to determine current height of the keyboard
+                int keyboardHeight = screenHeight - r.bottom;
+
+                // if the keyboard heigh is significatn (if keyboard is currently visible)
+                if (keyboardHeight > screenHeight * 0.15) {
+                    // Find the currently focused view
+                    View focused = getActivity().getCurrentFocus();
+                    if (focused != null) {
+                        // create an array to hold x,y coordinates
+                        int[] location = new int[2];
+                        // fills array with absolute screen position of focused view
+                        focused.getLocationOnScreen(location);
+                        // scrolls to location
+                        // makes sure location is visible above keyboard
+                        scrollView.smoothScrollTo(0, location[1] - keyboardHeight);
+                    }
+                }
+            }
+        });
+    }
 
 }

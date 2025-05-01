@@ -2,7 +2,6 @@ package com.example.bookishproject;
 
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,39 +18,33 @@ import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 /*
 This class represents the app's MainActivity.
-It has view binding, a tab layout, a view pager, a view pager adapter
+It has a view binding, active fragment, HostFragments for each navigation section, a ToolbarBuilder, and a BottomNavigationView.
  */
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-    private Fragment activeFragment;
-    private BooksHostFragment booksHostFragment;
-    private HomeHostFragment homeHostFragment;
-    private RecsHostFragment recsHostFragment;
-    private JournalHostFragment journalHostFragment;
+    private HostFragment activeFragment;
+    private HostFragment booksHostFragment, homeHostFragment, recsHostFragment, journalHostFragment;
     private ToolbarBuilder toolbarBuilder;
     private BottomNavigationView navBar;
-    private int currentSection = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.d("STARTUP CRASH", "MainActivity.onCreate() called");
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
         toolbarBuilder = new ToolbarBuilder(this);
-        Log.d("STARTUP CRASH", "MainActivity.onCreate(): set toolbarBuilder");
 
         if (savedInstanceState != null) {
             // Restore the active fragment reference
             String activeFragmentTag = savedInstanceState.getString("ACTIVE_FRAGMENT_TAG");
             if (activeFragmentTag != null) {
                 // Find existing fragments from the fragment manager
-                homeHostFragment = (HomeHostFragment) getSupportFragmentManager().findFragmentByTag("HOME");
-                booksHostFragment = (BooksHostFragment) getSupportFragmentManager().findFragmentByTag("BOOKS");
-                recsHostFragment = (RecsHostFragment) getSupportFragmentManager().findFragmentByTag("RECS");
-                journalHostFragment = (JournalHostFragment) getSupportFragmentManager().findFragmentByTag("JOURNAL");
+                homeHostFragment = (HostFragment) getSupportFragmentManager().findFragmentByTag("HOME");
+                booksHostFragment = (HostFragment) getSupportFragmentManager().findFragmentByTag("BOOKS");
+                recsHostFragment = (HostFragment) getSupportFragmentManager().findFragmentByTag("RECS");
+                journalHostFragment = (HostFragment) getSupportFragmentManager().findFragmentByTag("JOURNAL");
 
                 // Set active fragment based on saved tag
                 if (activeFragmentTag.equals("HOME")) {
@@ -67,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         else {
-            Log.d("STARTUP CRASH", "MainActivity.onCreate(): creating new host fragments");
+            // if we have no saved state, make four new host fragments
             booksHostFragment = new BooksHostFragment();
             recsHostFragment = new RecsHostFragment();
             journalHostFragment = new JournalHostFragment();
@@ -80,33 +73,28 @@ public class MainActivity extends AppCompatActivity {
                     .add(R.id.fragment_container, journalHostFragment, "JOURNAL").hide(journalHostFragment)
                     .add(R.id.fragment_container, homeHostFragment, "HOME")
                     .commit();
-            Log.d("STARTUP CRASH", "MainActivity.onCreate(): added all fragments but showed only home fragment");
 
-
+            // set homeHostFragment as the active fragment
             activeFragment = homeHostFragment;
-            Log.d("FragmentDebug", "Active fragment set to: " +
-                    activeFragment.getClass().getSimpleName() +
-                    "@" + Integer.toHexString(System.identityHashCode(activeFragment)));
 
-            Log.d("FragmentDebug", "Is active fragment instanceof HomeHostFragment? " +
-                    (activeFragment instanceof HomeHostFragment));
-            Log.d("FragmentDebug", "Is active fragment instanceof JournalHostFragment? " +
-                    (activeFragment instanceof JournalHostFragment));
+            // force all fragment transactions to complete before proceeding
             getSupportFragmentManager().executePendingTransactions();
 
-            new android.os.Handler().postDelayed(() -> {
-                if (activeFragment != null && activeFragment instanceof HostFragment) {
-                    toolbarBuilder.buildToolbar(((HostFragment) activeFragment).getCurrentVisibleFragment());
-                }
-            }, 300);
+            // build toolbar based on the active fragment
+            if (activeFragment != null) {
+                toolbarBuilder.buildToolbar(activeFragment.getCurrentVisibleFragment());
+            }
 
         }
 
+        // establish the nav bar
         navBar = binding.bottomNavBar;
+        // set operations for nav bar selection
         navBar.setOnItemSelectedListener(item -> {
-            Log.d("STARTUP CRASH", "MainActivity setting navBar onItemSelectedListener");
-            Fragment fragment = null;
+            HostFragment fragment = null;
 
+            // get the ID of the selected item
+            // use it to determine which section to navigate to
             int itemId = item.getItemId();
             if (itemId == R.id.navHome) {
                 fragment = homeHostFragment;
@@ -118,14 +106,17 @@ public class MainActivity extends AppCompatActivity {
                 fragment = journalHostFragment;
             }
 
+            // hide the current active fragment and move to the selected fragment
             if (fragment != null && fragment != activeFragment) {
                 getSupportFragmentManager().beginTransaction()
                         .hide(activeFragment)
                         .show(fragment)
                         .commit();
+                // set the new fragment as the active fragment
                 activeFragment = fragment;
 
-                toolbarBuilder.updateToolbarForActiveFragment(activeFragment);
+                // update the toolbar
+                setToolbar(activeFragment);
 
                 return true;
             }
@@ -134,72 +125,27 @@ public class MainActivity extends AppCompatActivity {
 
         });
 
-        setupKeyboardVisibilityListener(); // Add this line
-        Log.d("STARTUP CRASH", "MainActivity setUpKeyboardVisibilityListener");
+        // make sure the keyboard isn't interrupting the view
+        setupKeyboardVisibilityListener();
 
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                Log.d("FragmentDebug", "MainActivity handleOnBackPressed");
-                boolean handled = false;
-                Log.d("FragmentDebug", "MainActivity handleOnBackPressed: not yet handled");
-                if (activeFragment instanceof BackPressHandler) {
-                    Log.d("FragmentDebug", "MainActivity handleOnBackPressed: active fragment is instanceof BackPressHandler");
-                    handled = ((BackPressHandler) activeFragment).onBackPressed();
-
-                    if (handled) {
-                        Log.d("FragmentDebug", "MainActivity handleOnBackPressed: if handled yes");
-
-                        // Wait a brief moment for transition to complete
-                        activeFragment.getChildFragmentManager().executePendingTransactions();
-                        Log.d("FragmentDebug", "MainActivity handleOnBackPressed: child fragment manager.executePendingTransactions");
-
-                        // Update UI on main thread after a short delay
-                        // Use a handler to post a delayed action
-                        new android.os.Handler().postDelayed(() -> {
-                            updateToolbarAfterFragmentChange();
-                            Log.d("FragmentDebug", "MainActivity handleOnBackPressed: updating toolbar");
-                        }, 100);
-                    }
-                }
-
-                if (!handled) {
-                    Log.d("FragmentDebug", "MainActivity handleOnBackPressed: not handled");
-                    setEnabled(false);
-                    Log.d("FragmentDebug", "MainActivity handleOnBackPressed: not enabled");
-                    getOnBackPressedDispatcher().onBackPressed();
-                    Log.d("FragmentDebug", "MainActivity handleOnBackPressed: getOnBackPressedDispatcher().onBackPressed()");
-                    setEnabled(true);
-                    Log.d("FragmentDebug", "MainActivity handleOnBackPressed: enabled yes");
-                }
-            }
-        });
+        // decide how to handle back navigation
+        handleBackNavigation();
 
     }
 
     @Override
     public void onAttachedToWindow() {
-        Log.d("STARTUP CRASH", "MainActivity.onAttachedToWindow()");
         super.onAttachedToWindow();
-        Log.d("STARTUP CRASH", "MainActivity called super.onAttachedToWindow()");
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d("STARTUP CRASH", "MainActivity.onResume()");
     }
 
-    public int getCurrentSection() {
-        return currentSection;
-    }
-
-    public void setToolbar(Fragment fragment) {
-        toolbarBuilder.buildToolbar(fragment);
-        Log.d("STARTUP CRASH", "MainActivity.setToolbar(): " + fragment.getClass().getSimpleName());
-    }
-
+    /*
+    Method to ensure the keyboard doesn't get in the way of the view
+     */
     private void setupKeyboardVisibilityListener() {
         final View rootView = findViewById(android.R.id.content);
         rootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -228,7 +174,6 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        Log.d("STARTUP CRASH", "MainActivity.onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.top_app_bar_menu, menu);
         toolbarBuilder.setMenu(menu);
 
@@ -273,44 +218,22 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        Log.d("STARTUP CRASH", "MainActivity.onOptionsItemSelected()");
         // Let toolbar builder handle the item click
         if (toolbarBuilder.handleMenuItemClick(item)) {
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
-    public void showFragment(Fragment fragment) {
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, fragment)
-                .commit();
-
-        // Update toolbar for this fragment
-        toolbarBuilder.buildToolbar(fragment);
-    }
-
-    protected void updateToolbarAfterFragmentChange() {
-        Log.d("FragmentDebug", "MainActivity updateToolbarAfterFragmentChange()");
-        // Force any pending fragment transactions to complete
-        getSupportFragmentManager().executePendingTransactions();
-
+    /*
+    Method to build a toolbar
+     */
+    protected void setToolbar(HostFragment activeFragment) {
         // Get the currently visible fragment
         Fragment visibleFragment = null;
-        if (activeFragment instanceof BackPressHandler) {
-            if (activeFragment instanceof BooksHostFragment) {
-                visibleFragment = ((BooksHostFragment) activeFragment).getCurrentVisibleFragment();
-            }
-            else if (activeFragment instanceof JournalHostFragment) {
-                visibleFragment = ((JournalHostFragment) activeFragment).getCurrentVisibleFragment();
-            }
-            else if (activeFragment instanceof RecsHostFragment) {
-                visibleFragment = ((RecsHostFragment) activeFragment).getCurrentVisibleFragment();
-            }
-            else if (activeFragment instanceof HomeHostFragment) {
-                visibleFragment = ((HomeHostFragment) activeFragment).getCurrentVisibleFragment();
-            }
+
+        if (activeFragment != null) {
+            visibleFragment = activeFragment.getCurrentVisibleFragment();
         }
 
         // Update the toolbar with the visible fragment
@@ -331,20 +254,64 @@ public class MainActivity extends AppCompatActivity {
         return this.toolbarBuilder;
     }
 
+    /*
+    Method to save the current state
+     */
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
         // Save which fragment is active
-        if (activeFragment instanceof HomeHostFragment) {
-            outState.putString("ACTIVE_FRAGMENT_TAG", "HOME");
-        } else if (activeFragment instanceof BooksHostFragment) {
-            outState.putString("ACTIVE_FRAGMENT_TAG", "BOOKS");
-        } else if (activeFragment instanceof RecsHostFragment) {
-            outState.putString("ACTIVE_FRAGMENT_TAG", "RECS");
-        } else if (activeFragment instanceof JournalHostFragment) {
-            outState.putString("ACTIVE_FRAGMENT_TAG", "JOURNAL");
+        if (activeFragment != null) {
+            // Get the tag based on which host fragment is active
+            String tag = null;
+            if (activeFragment == homeHostFragment) tag = "HOME";
+            else if (activeFragment == booksHostFragment) tag = "BOOKS";
+            else if (activeFragment == recsHostFragment) tag = "RECS";
+            else if (activeFragment == journalHostFragment) tag = "JOURNAL";
+
+            if (tag != null) {
+                outState.putString("ACTIVE_FRAGMENT_TAG", tag);
+            }
         }
+    }
+
+    /*
+    Method to handle back navigation
+     */
+    public void handleBackNavigation() {
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // initially it has not been handled
+                boolean handled = false;
+                if (activeFragment != null) {
+                    // see if the activeFragment can/will handle it
+                    handled = (activeFragment).onBackPressed();
+
+                    // if it has been handled
+                    if (handled) {
+
+                        // Wait a brief moment for transition to complete
+                        activeFragment.getChildFragmentManager().executePendingTransactions();
+
+                        // update toolbar after the fragment change
+                        setToolbar(activeFragment);
+                    }
+                }
+
+                // if it hasn't been handled
+                if (!handled) {
+                    // disable current callback
+                    setEnabled(false);
+                    // handle back behavior in the default way
+                    // exit to home screen
+                    getOnBackPressedDispatcher().onBackPressed();
+                    // re-enable the current callback
+                    setEnabled(true);
+                }
+            }
+        });
     }
 
 }

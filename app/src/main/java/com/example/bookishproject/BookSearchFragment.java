@@ -67,7 +67,7 @@ public class BookSearchFragment extends Fragment {
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).setToolbar(this);
+            ((MainActivity) getActivity()).setToolbar((HostFragment) this.getParentFragment());
         }
     }
 

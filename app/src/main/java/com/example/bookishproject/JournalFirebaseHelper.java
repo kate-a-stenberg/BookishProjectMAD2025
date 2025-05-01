@@ -72,9 +72,8 @@ public class JournalFirebaseHelper {
                     }
                 }
 
-                Collections.reverse(entries);  // Reverse to get newest first
-                callback.onCallback(entries);
-
+                // Reverse to get newest first
+                Collections.reverse(entries);
                 // give the entries list to the app
                 callback.onCallback(entries);
             }
@@ -86,35 +85,6 @@ public class JournalFirebaseHelper {
             }
         });
 
-
-
-//        // Add a new ValueEventListener--listens for when something in the database changes
-//        dbRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-//                // create a new array list of Entries
-//                List<Entry> entries = new ArrayList<>();
-//
-//                // go through all the data points in the database
-//                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-//                    // create an Entry out of that data point
-//                    Entry entry = snapshot.getValue(Entry.class);
-//                    // if the entry isn't null, add it to the entry list
-//                    if (entry != null) {
-//                        entries.add(entry);
-//                    }
-//                }
-//
-//                // give the entries list to the app
-//                callback.onCallback(entries);
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//                Log.e("JournalFirebaseHelper", "Error fetching entries: " + error.getMessage());
-//                callback.onCallback(new ArrayList<>());
-//            }
-//        });
     }
 
     public void getEntriesForBook(String bookId, FirebaseCallback callback) {

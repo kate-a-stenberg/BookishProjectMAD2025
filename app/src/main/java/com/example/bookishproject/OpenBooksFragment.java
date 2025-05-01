@@ -110,7 +110,7 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).setToolbar(this);
+            ((MainActivity) getActivity()).setToolbar((HostFragment) this.getParentFragment());
         }
 
         loadCurrentReads(); // Refresh the list every time the fragment becomes visible
@@ -237,4 +237,21 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     public void performSearch(String query) {
         // TODO: write search logic
     }
+
+    // Helper method to be called before navigation
+    public void saveScrollPosition() {
+        if (layoutManager != null) {
+            // Save the current position to a persistent field
+            Bundle scrollState = new Bundle();
+            Parcelable listState = layoutManager.onSaveInstanceState();
+            scrollState.putParcelable(KEY_RECYCLER_STATE, listState);
+
+            // Store it with the fragment
+            if (getArguments() == null) {
+                setArguments(new Bundle());
+            }
+            getArguments().putBundle("SCROLL_STATE", scrollState);
+        }
+    }
+
 }

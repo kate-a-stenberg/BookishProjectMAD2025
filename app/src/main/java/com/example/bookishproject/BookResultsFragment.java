@@ -87,7 +87,7 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity)getActivity()).setToolbar(this);
+            ((MainActivity) getActivity()).setToolbar((HostFragment) this.getParentFragment());
         }
     }
 
@@ -135,7 +135,7 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     }
 
     /*
-    Method to set up the recycler view
+    Method to set up the recycler view, its adapter, and its layout manager
      */
     private void setupRecyclerView() {
         // create a new RecyclerAdapterBooks using the results list to populate

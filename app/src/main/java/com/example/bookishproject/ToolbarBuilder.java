@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -13,20 +11,22 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
+/*
+This class represents a ToolbarBuilder.
+A ToolbarBuilder is responsible for assembling a top app bar for a fragment.
+This includes choosing which icons to display, what the help message says, whether to display the back button, and what the headline should say.
+ */
 public class ToolbarBuilder {
 
-    private Activity activity;
+    private final AppCompatActivity activity;
+    private final MaterialToolbar toolbar;
     private Fragment currentFragment;
-    private MaterialToolbar toolbar;
     private Menu menu;
 
-    public ToolbarBuilder() {}
-
-    public ToolbarBuilder(Activity activity) {
+    public ToolbarBuilder(AppCompatActivity activity) {
         this.activity = activity;
         this.toolbar = activity.findViewById(R.id.topAppBar);
-        //
-        ((AppCompatActivity)activity).setSupportActionBar(toolbar);
+        activity.setSupportActionBar(toolbar);
     }
 
     public void setMenu(Menu menu) {
@@ -57,7 +57,7 @@ public class ToolbarBuilder {
         else if (fragment instanceof BooksFragment) {
             setBooksToolbar();
         }
-        else if (fragment instanceof BookFragment) {
+        else if (fragment instanceof BookDetailFragment) {
             setBookToolbar();
         }
         else if (fragment instanceof HabitsFragment) {
@@ -89,11 +89,9 @@ public class ToolbarBuilder {
         }
         else if (fragment instanceof WelcomeFragment) {
             setWelcomeToolbar();
-            Log.d("FragmentDebug", "ToolbarBuilder.buildToolbar: WelcomeFragment");
         }
         else {
             setBlankToolbar();
-            Log.d("FragmentDebug", "ToolbarBuilder.buildToolbar: Blank");
         }
     }
 
@@ -104,16 +102,11 @@ public class ToolbarBuilder {
     }
 
     private void showBackButton(boolean show) {
-        ((AppCompatActivity)activity).getSupportActionBar().setDisplayHomeAsUpEnabled(show);
+        activity.getSupportActionBar().setDisplayHomeAsUpEnabled(show);
 
         if (show) {
             toolbar.setNavigationOnClickListener(v -> {
-                if (currentFragment != null) {
-                    Fragment parentFragment = currentFragment.getParentFragment();
-                    if (parentFragment != null && parentFragment instanceof BackPressHandler) {
-                        ((BackPressHandler) parentFragment).onBackPressed();
-                    }
-                }
+                handleBackButton();
             });
         }
     }
@@ -121,8 +114,7 @@ public class ToolbarBuilder {
     private void setTitleForFragment(Fragment fragment) {
         String title = "BookishProject";
 
-
-        if (fragment instanceof BookFragment) {
+        if (fragment instanceof BookDetailFragment) {
             title = "Book Details";
         }
         else if (fragment instanceof BookResultsFragment) {
@@ -375,13 +367,8 @@ public class ToolbarBuilder {
             return;
         }
 
-        Fragment parentFragment = currentFragment.getParentFragment();
-        if (parentFragment != null && parentFragment instanceof BackPressHandler) {
-            ((BackPressHandler) parentFragment).onBackPressed();
-        }
-        else {
-            // Default behavior - let the system pop the back stack
-            ((AppCompatActivity)activity).onBackPressed();
+        if (activity instanceof MainActivity) {
+            ((MainActivity) activity).handleBackNavigation();
         }
     }
 
@@ -389,7 +376,7 @@ public class ToolbarBuilder {
         String title = "Help";
         String message = "Help information";
 
-        if (currentFragment instanceof BookFragment) {
+        if (currentFragment instanceof BookDetailFragment) {
             title = "Book Details";
             message = "Here is where you can view a book's data. Tap the edit button to update or change the data.";
         }
@@ -449,6 +436,9 @@ public class ToolbarBuilder {
                 .show();
     }
 
+    /*
+    Method to handle a search operation
+     */
     private void handleSearch() {
         if (currentFragment instanceof BooksFragment) {
             // TODO: Open search for books
@@ -462,6 +452,9 @@ public class ToolbarBuilder {
         // TODO: Other fragment-specific search handling
     }
 
+    /*
+    Method to handle a sort operation
+     */
     private void handleSort() {
         if (currentFragment instanceof BooksFragment) {
             // Show sort options for books
@@ -475,45 +468,6 @@ public class ToolbarBuilder {
             // Show sort options for journal entries
         }
         // TODO: Other fragment-specific sort handling
-    }
-
-    // Add to ToolbarBuilder.java
-    public void updateToolbarForActiveFragment(Fragment activeFragment) {
-        Log.d("FragmentDebug", "ToolbarBuilder updateToolbarForActiveFragment");
-        Log.d("FragmentDebug", "updateToolbarForActiveFragment called with: " +
-                (activeFragment != null ? activeFragment.getClass().getSimpleName() +
-                        "@" + Integer.toHexString(System.identityHashCode(activeFragment)) : "null"));
-
-        // Check each host fragment explicitly
-        Log.d("FragmentDebug", "homeHostFragment instanceof check: " +
-                (activeFragment instanceof HomeHostFragment));
-        Log.d("FragmentDebug", "booksHostFragment instanceof check: " +
-                (activeFragment instanceof BooksHostFragment));
-        Log.d("FragmentDebug", "recsHostFragment instanceof check: " +
-                (activeFragment instanceof RecsHostFragment));
-        Log.d("FragmentDebug", "journalHostFragment instanceof check: " +
-                (activeFragment instanceof JournalHostFragment));
-
-        Fragment fragmentToUse = null;
-
-        if (activeFragment instanceof BooksHostFragment) {
-            fragmentToUse = ((BooksHostFragment) activeFragment).getCurrentVisibleFragment();
-        } else if (activeFragment instanceof JournalHostFragment) {
-            fragmentToUse = ((JournalHostFragment) activeFragment).getCurrentVisibleFragment();
-        } else if (activeFragment instanceof RecsHostFragment) {
-            fragmentToUse = ((RecsHostFragment) activeFragment).getCurrentVisibleFragment();
-        } else if (activeFragment instanceof HomeHostFragment) {
-            fragmentToUse = ((HomeHostFragment) activeFragment).getCurrentVisibleFragment();
-        }
-
-        if (fragmentToUse != null) {
-            Log.d("ToolbarBuilder", "Using child fragment: " + fragmentToUse.getClass().getSimpleName());
-            buildToolbar(fragmentToUse);
-        } else {
-            Log.d("ToolbarBuilder", "No child fragment found, using host: " +
-                    (activeFragment != null ? activeFragment.getClass().getSimpleName() : "null"));
-            buildToolbar(activeFragment);
-        }
     }
 
 }

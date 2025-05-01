@@ -72,6 +72,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
         Bundle scrollState = getArguments() != null ?
                 getArguments().getBundle("SCROLL_STATE") : null;
 
+        // if we have a saved scroll state
         if (scrollState != null) {
             Parcelable listState = scrollState.getParcelable(KEY_RECYCLER_STATE);
             if (listState != null) {
@@ -82,17 +83,23 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
 
         // Then check saved instance state (for config changes)
         else if (savedInstanceState != null) {
+            // get the state
             Parcelable listState = savedInstanceState.getParcelable(KEY_RECYCLER_STATE);
             if (listState != null) {
+                // set the layout to that state
                 layoutManager.onRestoreInstanceState(listState);
             }
+            // also get whatever position was selected
             selectedPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION,
                     RecyclerView.NO_POSITION);
+            // and remember if we had typed in a search query and put that back
             currentSearchQuery = savedInstanceState.getString(KEY_SEARCH_QUERY, "");
         }
 
+        // set operations for add entry
         add.setOnClickListener(v -> {
             if (getParentFragment() instanceof JournalHostFragment) {
+                // go to OpenBooksFragment
                 ((JournalHostFragment) getParentFragment()).navigateToOpenBooks();
             }
         });
@@ -106,7 +113,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
         loadEntries();
 
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).setToolbar(this);
+            ((MainActivity) getActivity()).setToolbar((HostFragment) this.getParentFragment());
         }
 
         if (rview != null) {
@@ -150,7 +157,6 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
             // ask the adapter to toggle expansion of the card at that position
             if (entry.getComments() != null && !entry.getComments().isEmpty()) {
                 adapter.toggleExpansion(position);
-
             }
         }
     }
@@ -185,6 +191,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
         // assign this layout manager to the recycler view
         binding.rview.setLayoutManager(layoutManager);
 
+        // add divider between each item
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(rview.getContext(), LinearLayoutManager.VERTICAL);
         rview.addItemDecoration(dividerItemDecoration);
     }
@@ -220,6 +227,7 @@ public class JournalFragment extends Fragment implements RecyclerAdapterJournal.
                     // clear the entry list to avoid adding everything a million times
                     if (entryList.size() != entries.size() || !entryList.containsAll(entries)) {
                         entryList.clear();
+                        // then add everything back
                         entryList.addAll(entries);
                         if (adapter != null) {
                             adapter.notifyDataSetChanged();

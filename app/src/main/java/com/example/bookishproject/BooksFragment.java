@@ -49,7 +49,6 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     private ExtendedFloatingActionButton addBook;
 
 
-
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -76,14 +75,16 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
 
         loadBooks();
 
-        // First check if we have state in arguments (from navigation)
+        // First check if we have a scroll state saved
         Bundle scrollState = getArguments() != null ?
                 getArguments().getBundle("SCROLL_STATE") : null;
 
+        // we do have a saved scroll state
         if (scrollState != null) {
+            // make the saved list state into a parcelable
             Parcelable listState = scrollState.getParcelable(KEY_RECYCLER_STATE);
             if (listState != null) {
-                // Restore from navigation
+                // have the layout manager restore that scroll state
                 gridLayoutManager.onRestoreInstanceState(listState);
             }
         }
@@ -98,6 +99,7 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
             currentSearchQuery = savedInstanceState.getString(KEY_SEARCH_QUERY, "");
         }
 
+        // if user taps the add button, go to BookSearchFragment
         addBook.setOnClickListener(v -> {
             if (getParentFragment() instanceof BooksHostFragment) {
                 ((BooksHostFragment) getParentFragment()).navigateToBookSearch();
@@ -111,7 +113,7 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
         super.onResume();
 
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).setToolbar(this);
+            ((MainActivity) getActivity()).setToolbar((HostFragment) this.getParentFragment());
         }
 
         loadBooks();

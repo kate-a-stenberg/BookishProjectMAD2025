@@ -6,7 +6,7 @@
     android:id="@+id/bookBackground"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BookFragment">
+    tools:context=".BookDetailFragment">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/editModeIndicator"
