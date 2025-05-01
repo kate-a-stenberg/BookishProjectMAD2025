@@ -1,13 +1,13 @@
 package com.example.bookishproject;
 
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.example.bookishproject.databinding.FragmentBookResultsBinding;
 import com.example.bookishproject.databinding.FragmentBooksBinding;
 import com.example.bookishproject.databinding.FragmentOpenBooksBinding;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
@@ -33,15 +34,26 @@ This class represents an OpenBooksFragment.
 An Open Books fragment displays the user's current reads in a recycler view.
 It uses view binding, a recycler view, a RecyclerBooksAdapter, a list of results, layout elements, and a BookFirebaseHelper.
  */
-public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
+public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, Searchable {
 
+    private static final String KEY_RECYCLER_STATE = "recycler_state";
+    private static final String KEY_SELECTED_POSITION = "selected_position";
+    private static final String KEY_SEARCH_QUERY = "search_query";
+
+    private String currentSearchQuery = "";
+    private int selectedPosition = RecyclerView.NO_POSITION;
     private FragmentOpenBooksBinding binding;
+    private BookFirebaseHelper fbHelper;
+    private List<Book> results = new ArrayList<>();
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
-    private List<Book> results = new ArrayList<>();
-    private TextView noBooks;
+    private LinearLayoutManager layoutManager;
+    private GridLayoutManager gridLayoutManager;
     private ProgressBar progressBar;
-    private BookFirebaseHelper fbHelper;
+    private TextView noBooks;
+    private ExtendedFloatingActionButton add;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -50,12 +62,11 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
         binding = FragmentOpenBooksBinding.inflate(inflater, container, false);
 
         rView = binding.recyclerView;
+        add = binding.fabOpenBook;
         noBooks = binding.messageNoOpenBooks;
         progressBar = binding.progressBar;
 
         setupRecyclerView();
-
-        adapter.setOnNoteListener(this);
 
         return binding.getRoot();
 
@@ -65,7 +76,34 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         loadCurrentReads();
-        updateColors();
+
+        // First check if we have state in arguments (from navigation)
+        Bundle scrollState = getArguments() != null ?
+                getArguments().getBundle("SCROLL_STATE") : null;
+
+        if (scrollState != null) {
+            Parcelable listState = scrollState.getParcelable(KEY_RECYCLER_STATE);
+            if (listState != null) {
+                // Restore from navigation
+                layoutManager.onRestoreInstanceState(listState);
+            }
+        }
+        // Then check saved instance state (for config changes)
+        else if (savedInstanceState != null) {
+            Parcelable listState = savedInstanceState.getParcelable(KEY_RECYCLER_STATE);
+            if (listState != null) {
+                layoutManager.onRestoreInstanceState(listState);
+            }
+            selectedPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION,
+                    RecyclerView.NO_POSITION);
+            currentSearchQuery = savedInstanceState.getString(KEY_SEARCH_QUERY, "");
+        }
+
+        add.setOnClickListener(v -> {
+            if (getParentFragment() instanceof JournalHostFragment) {
+                ((JournalHostFragment) getParentFragment()).navigateToMyBooks();
+            }
+        });
     }
 
     @Override
@@ -73,9 +111,33 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setToolbar(this);
-            updateColors();
         }
+
         loadCurrentReads(); // Refresh the list every time the fragment becomes visible
+
+        if (rView != null) {
+            // Use post to ensure logic happens after layout completes
+            rView.post(() -> {
+                if (adapter != null && results != null) {
+                    // Force refresh the adapter when returning to the fragment
+                    adapter.resetExpandedState();
+                    adapter.notifyDataSetChanged();
+                }
+            });
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Save RecyclerView state
+        if (layoutManager != null) {
+            Parcelable listState = layoutManager.onSaveInstanceState();
+            outState.putParcelable(KEY_RECYCLER_STATE, listState);
+            outState.putInt(KEY_SELECTED_POSITION, selectedPosition);
+            outState.putString(KEY_SEARCH_QUERY, currentSearchQuery);
+        }
+
     }
 
     /*
@@ -105,16 +167,18 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     */
     @Override
     public void onNoteLongClick(Book book) {
-        if (getActivity() instanceof MainActivity) {
-            ((MainActivity) getActivity()).getNavigator().navigateToJournalEntry(book);
+        if (getParentFragment() instanceof JournalHostFragment) {
+            ((JournalHostFragment) getParentFragment()).navigateToJournalEntry(book);
         }
     }
 
     private void setupRecyclerView() {
         adapter = new RecyclerAdapterBooks(getContext(), results);
         adapter.setOnNoteListener(this);
-        rView.setLayoutManager(new LinearLayoutManager(getContext()));
         rView.setAdapter(adapter);
+
+        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        rView.setLayoutManager(gridLayoutManager);
     }
 
     /*
@@ -170,14 +234,7 @@ public class OpenBooksFragment extends Fragment implements RecyclerAdapterBooks.
     }
 
     @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-
-            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
-            progressBar.setBackgroundColor(Color.TRANSPARENT);
-        }
+    public void performSearch(String query) {
+        // TODO: write search logic
     }
-
 }

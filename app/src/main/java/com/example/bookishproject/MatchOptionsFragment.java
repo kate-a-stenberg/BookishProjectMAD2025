@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,7 +35,7 @@ and in MatchOptionsFragment they are returned a list of Books that match and cho
 It has view binding, a recycler view, a recycler view adapter (specific to Books), an array list of search results, and layout fields and elements.
 It also has a static final String attribute.
  */
-public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
+public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
 
     private FragmentMatchOptionsBinding binding;
     private RecyclerView rView;
@@ -42,6 +43,8 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
     private List<Book> results = new ArrayList<>();
     private ProgressBar progressBar;
     private TextView noBooks;
+    private GridLayoutManager gridLayoutManager;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -78,15 +81,13 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        updateColors();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity)getActivity()).setToolbar(this);
-            updateColors();
+            ((MainActivity) getActivity()).setToolbar(this);
         }
     }
 
@@ -120,8 +121,8 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
     private void setupRecyclerView() {
         adapter = new RecyclerAdapterBooks(getContext(), results);
         adapter.setOnNoteListener(this);
-        rView.setLayoutManager(new LinearLayoutManager(getContext()));
-        rView.setAdapter(adapter);
+        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        rView.setLayoutManager(gridLayoutManager);
     }
 
     /*
@@ -169,22 +170,10 @@ public class MatchOptionsFragment extends Fragment implements RecyclerAdapterBoo
             }
 
             // Use MainActivity to navigate to results fragment based on the selectedBook and matchingBooks list
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity) getActivity()).getNavigator().navigateToMatchResultsFragment(matchingBooks);
-
+            if (getParentFragment() instanceof RecsHostFragment) {
+                ((RecsHostFragment) getParentFragment()).navigateToMatchResults(matchingBooks);
             }
         });
-    }
-
-    @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-
-            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
-            progressBar.setBackgroundColor(Color.TRANSPARENT);
-        }
     }
 
 }

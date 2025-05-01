@@ -3,6 +3,7 @@ package com.example.bookishproject;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
@@ -22,6 +23,9 @@ import com.bumptech.glide.Glide;
 import com.example.bookishproject.databinding.FragmentBookBinding;
 import com.example.bookishproject.databinding.LayoutBookDetailsBottomSheetBinding;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -35,7 +39,7 @@ BookFragment is a non-editable view of a Book object's full attributes.
 It uses view binding, a Book object, and fields from the fragment layout.
 It also has a static final variable
  */
-public class BookFragment extends Fragment implements ColorUpdatable {
+public class BookFragment extends Fragment {
 
     // this variable is the name of the Bundle that contains information on the Book whose information to populate its fields with
     // it receives this from BooksFragment
@@ -43,15 +47,16 @@ public class BookFragment extends Fragment implements ColorUpdatable {
 
     FragmentBookBinding binding;
     private Book book;
-    private TextView title, series, author, bookDetails, seriesInput, seriesInputEdit, numberInput, numberInputEdit, pubDateInput, pubDateInputEdit, themesInput, themesInputEdit, synopsis, sheetTitle, review, editWarning;
+    private TextView title, author, bookDetails, seriesInput, seriesInputEdit, numberInput, numberInputEdit, pubDateInput, pubDateInputEdit, themesInput, themesInputEdit, synopsis, sheetTitle, review, editWarning, deleteLabel;
     private TextInputLayout seriesLayout, seriesLayoutEditable, numberLayout, numberLayoutEditable, pubDateLayout, pubDateLayoutEditable, themesLayout, themesLayoutEditable, synopsisLayout;
     private CardView genreCard, genreCardEditable, ageRangeCard, ageRangeCardEditable, editMessage;
     private RadioButton unread, currentlyReading, read, dnf;
     private Spinner genre, genreEdit, ageRange, ageRangeEdit;
     private ImageView cover;
-    private FloatingActionButton details;
+    private MaterialButton details;
     private RatingBar rating;
-    private Button edit, submit, save;
+    private Button submit, delete;
+    private ExtendedFloatingActionButton edit, save;
     private BottomSheetBehavior<View> bottomSheetBehavior;
     private BookFirebaseHelper fbHelper;
 
@@ -88,9 +93,8 @@ public class BookFragment extends Fragment implements ColorUpdatable {
         // CONSTANT FIELDS - MAIN VIEW
 
         cover = binding.imageCover;
-        title = binding.textBookTitle;
-        author = binding.textBookAuthor;
-        series = binding.textSeries;
+        title = binding.titleInput;
+        author = binding.authorInput;
         synopsis = binding.synopsisInput;
         editMessage = binding.editModeIndicator;
         editWarning = binding.editMessage;
@@ -109,6 +113,8 @@ public class BookFragment extends Fragment implements ColorUpdatable {
         pubDateInputEdit = binding.pubDateInputEditable;
         themesInput = binding.themesInput;
         themesInputEdit = binding.themesInputEditable;
+
+        deleteLabel = binding.deleteLabel;
 
         seriesLayout = binding.seriesInputLayout;
         seriesLayoutEditable = binding.seriesInputLayoutEditable;
@@ -130,7 +136,9 @@ public class BookFragment extends Fragment implements ColorUpdatable {
         ageRangeCardEditable = binding.ageCardEditable;
 
         edit = binding.bookEdit;
-        submit = binding.bookSubmit;
+        save = binding.bookSave;
+        submit = bottomSheetBinding.bookSubmit;
+        delete = binding.deleteButton;
 
         // CONSTANT FIELDS - BOTTOM SHEET
 
@@ -144,8 +152,6 @@ public class BookFragment extends Fragment implements ColorUpdatable {
 
         rating = bottomSheetBinding.bookEditStarRating;
 
-        save = bottomSheetBinding.buttonBookEditSave;
-
         return binding.getRoot();
     }
 
@@ -154,8 +160,6 @@ public class BookFragment extends Fragment implements ColorUpdatable {
         super.onViewCreated(view, savedInstanceState);
 
         setViewOnly();
-
-        updateColors();
 
         // something complicated with cover images. I don't really know about this, I looked it up
         // I think basically:
@@ -197,7 +201,7 @@ public class BookFragment extends Fragment implements ColorUpdatable {
 
         rating.setRating(book.getRating());
 
-        save.setOnClickListener(v -> {
+        submit.setOnClickListener(v -> {
             String previousStatus = book.getStatus();
             String newStatus;
 
@@ -270,7 +274,7 @@ public class BookFragment extends Fragment implements ColorUpdatable {
             setEditable();
         });
 
-        submit.setOnClickListener(v -> {
+        save.setOnClickListener(v -> {
 
             if (seriesInputEdit != null) {
                 if (seriesInputEdit.getText() != null && !seriesInputEdit.getText().toString().isEmpty()) {
@@ -286,13 +290,43 @@ public class BookFragment extends Fragment implements ColorUpdatable {
                 }
             }
 
-            if (!genre.getSelectedItem().toString().equals("Select genre...")){
-                book.setGenre(genre.getSelectedItem().toString());
+            if (!genreEdit.getSelectedItem().toString().equals("Select genre...")){
+                book.setGenre(genreEdit.getSelectedItem().toString());
             }
+            else {
+                book.setGenre(genreEdit.getSelectedItem().toString());
+            }
+            ArrayAdapter<CharSequence> genreAdapter = ArrayAdapter.createFromResource(getContext(), R.array.genre_array, R.layout.spinner_item);
+            genreAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
+            genre.setAdapter(genreAdapter);
+            if (book.getGenre() != null && !book.getGenre().isEmpty()) {
+                for (int i = 0; i < genreAdapter.getCount(); i++) {
+                    if (genreAdapter.getItem(i).toString().equals(book.getGenre())) {
+                        genre.setSelection(i);
+                        break;
+                    }
+                }
+            }
+            genre.setEnabled(false);
 
-            if (!ageRange.getSelectedItem().toString().equals("Select age range...")){
-                book.setAgeRange(ageRange.getSelectedItem().toString());
+            if (!ageRangeEdit.getSelectedItem().toString().equals("Select age range...")){
+                book.setAgeRange(ageRangeEdit.getSelectedItem().toString());
             }
+            else {
+                book.setAgeRange(ageRangeEdit.getSelectedItem().toString());
+            }
+            ArrayAdapter<CharSequence> ageAdapter = ArrayAdapter.createFromResource(getContext(), R.array.age_array, R.layout.spinner_item);
+            ageAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item_books);
+            ageRange.setAdapter(ageAdapter);
+            if (book.getAgeRange() != null && !book.getAgeRange().isEmpty()) {
+                for (int i = 0; i < ageAdapter.getCount(); i++) {
+                    if (ageAdapter.getItem(i).toString().equals(book.getAgeRange())) {
+                        ageRange.setSelection(i);
+                        break;
+                    }
+                }
+            }
+            ageRange.setEnabled(false);
 
             if (themesInputEdit != null) {
                 if (themesInputEdit.getText() != null && !themesInputEdit.getText().toString().isEmpty()) {
@@ -330,6 +364,26 @@ public class BookFragment extends Fragment implements ColorUpdatable {
 
         });
 
+        delete.setOnClickListener(v -> {
+            String id = book.getApiId();
+
+            MaterialAlertDialogBuilder builder = new MaterialAlertDialogBuilder(getActivity())
+                    .setTitle("Delete book?" )
+                    .setMessage("Do you really want to delete \"" + book.getTitle() + "\" from your collection? Your journal entries for this book will be preserved in your reading log.")
+                    .setNegativeButton("Cancel", (dialog, which) -> {
+                        // User clicked Cancel, do nothing
+                        dialog.dismiss();
+                    }).setPositiveButton("Delete", (dialog, which) -> {
+                        // User confirmed deletion, now call the delete method
+                        fbHelper.deleteBook(id);
+                        if (getParentFragment() instanceof BooksHostFragment) {
+                            ((BooksHostFragment) getParentFragment()).onBackPressed();
+                        }
+                    });
+            builder.show();
+
+        });
+
     }
 
     @Override
@@ -339,18 +393,17 @@ public class BookFragment extends Fragment implements ColorUpdatable {
             MainActivity activity = (MainActivity) getActivity();
             activity.setToolbar(this);
         }
-        updateColors();
     }
 
     public void setEditable() {
         bookDetails.setText("Edit book details");
 
-        if (book.getSeries() != null && !book.getSeries().isEmpty()) {
-            series.setText(book.getSeries());
-            if (book.getNumber() != null && book.getNumber() > 0) {
-                series.append(" #" + book.getNumber().toString());
-            }
-        }
+//        if (book.getSeries() != null && !book.getSeries().isEmpty()) {
+//            series.setText(book.getSeries());
+//            if (book.getNumber() != null && book.getNumber() > 0) {
+//                series.append(" #" + book.getNumber().toString());
+//            }
+//        }
 
         seriesInput.setVisibility(View.GONE);
         seriesLayout.setVisibility(View.GONE);
@@ -433,22 +486,24 @@ public class BookFragment extends Fragment implements ColorUpdatable {
             }
         }
 
-        submit.setVisibility(View.VISIBLE);
+        save.setVisibility(View.VISIBLE);
+        delete.setVisibility(View.VISIBLE);
+        deleteLabel.setVisibility(View.VISIBLE);
 
     }
 
     public void setViewOnly() {
         bookDetails.setText("Book details");
 
-        if (book.getSeries() != null && !book.getSeries().isEmpty()) {
-            series.setText(book.getSeries());
-            if (book.getNumber() != null && book.getNumber() > 0) {
-                series.append(" #" + book.getNumber().toString());
-            }
-        }
-        else {
-            series.setVisibility(View.GONE);
-        }
+//        if (book.getSeries() != null && !book.getSeries().isEmpty()) {
+//            series.setText(book.getSeries());
+//            if (book.getNumber() != null && book.getNumber() > 0) {
+//                series.append(" #" + book.getNumber().toString());
+//            }
+//        }
+//        else {
+//            series.setVisibility(View.GONE);
+//        }
 
         seriesLayoutEditable.setVisibility(View.GONE);
         numberLayoutEditable.setVisibility(View.GONE);
@@ -464,8 +519,10 @@ public class BookFragment extends Fragment implements ColorUpdatable {
         genreCardEditable.setVisibility(View.GONE);
         ageRangeCardEditable.setVisibility(View.GONE);
 
-        submit.setVisibility(View.GONE);
+        save.setVisibility(View.GONE);
         editMessage.setVisibility(View.GONE);
+        delete.setVisibility(View.GONE);
+        deleteLabel.setVisibility(View.GONE);
 
         seriesLayout.setVisibility(View.VISIBLE);
         seriesInput.setVisibility(View.VISIBLE);
@@ -535,18 +592,6 @@ public class BookFragment extends Fragment implements ColorUpdatable {
 
         edit.setVisibility(View.VISIBLE);
 
-    }
-
-    @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-
-            editMessage.setCardBackgroundColor(activity.currentInterestColor);
-            editWarning.setTextColor(activity.currentBackgroundColor);
-            binding.bookInfoCard.setCardBackgroundColor(activity.currentCardColor);
-        }
     }
 
 

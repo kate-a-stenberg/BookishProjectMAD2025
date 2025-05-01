@@ -1,51 +1,53 @@
 package com.example.bookishproject;
 
 import android.app.Activity;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+
+import com.google.android.material.appbar.MaterialToolbar;
 
 public class ToolbarBuilder {
 
-    private ImageButton backButton, helpButton, searchButton, addButton;
-    private TextView searchInput;
     private Activity activity;
-    private Navigator navigator;
-    private AppToolbarProvider provider;
+    private Fragment currentFragment;
+    private MaterialToolbar toolbar;
+    private Menu menu;
 
     public ToolbarBuilder() {}
 
     public ToolbarBuilder(Activity activity) {
         this.activity = activity;
+        this.toolbar = activity.findViewById(R.id.topAppBar);
+        //
+        ((AppCompatActivity)activity).setSupportActionBar(toolbar);
     }
 
-    // GETTERS AND SETTERS
-
-    public ToolbarProvider getProvider() {
-        return this.provider;
-    }
-    public Activity getActivity() {
-        return this.activity;
-    }
-    public void setProvider(AppToolbarProvider provider) {
-        this.provider = provider;
-
-        backButton = provider.getBackButton();
-        helpButton = provider.getHelpButton();
-        searchButton = provider.getSearchButton();
-        addButton = provider.getAddButton();
-        searchInput = provider.getSearchInput();
-
-        navigator = provider.getNavigator();
-    }
-    public void setActivity(Activity activity) {
-        this.activity = activity;
+    public void setMenu(Menu menu) {
+        this.menu = menu;
     }
 
     public void buildToolbar(Fragment fragment) {
+
+        this.currentFragment = fragment;
+
+        if (menu == null) return;
+
+        // Hide all menu items by default
+        hideAllMenuItems();
+
+        // Hide back button by default
+        showBackButton(false);
+
+        // Set title based on fragment
+        setTitleForFragment(fragment);
+
         if (fragment instanceof BookResultsFragment) {
             setBookResultsToolbar();
         }
@@ -85,261 +87,433 @@ public class ToolbarBuilder {
         else if (fragment instanceof RecsFragment) {
             setRecsToolbar();
         }
+        else if (fragment instanceof WelcomeFragment) {
+            setWelcomeToolbar();
+            Log.d("FragmentDebug", "ToolbarBuilder.buildToolbar: WelcomeFragment");
+        }
         else {
             setBlankToolbar();
+            Log.d("FragmentDebug", "ToolbarBuilder.buildToolbar: Blank");
         }
+    }
+
+    private void hideAllMenuItems() {
+        for (int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setVisible(false);
+        }
+    }
+
+    private void showBackButton(boolean show) {
+        ((AppCompatActivity)activity).getSupportActionBar().setDisplayHomeAsUpEnabled(show);
+
+        if (show) {
+            toolbar.setNavigationOnClickListener(v -> {
+                if (currentFragment != null) {
+                    Fragment parentFragment = currentFragment.getParentFragment();
+                    if (parentFragment != null && parentFragment instanceof BackPressHandler) {
+                        ((BackPressHandler) parentFragment).onBackPressed();
+                    }
+                }
+            });
+        }
+    }
+
+    private void setTitleForFragment(Fragment fragment) {
+        String title = "BookishProject";
+
+
+        if (fragment instanceof BookFragment) {
+            title = "Book Details";
+        }
+        else if (fragment instanceof BookResultsFragment) {
+            title = "Book Search Results";
+        }
+        else if (fragment instanceof BookSearchFragment) {
+            title = "Book Search";
+        }
+        else if (fragment instanceof BooksFragment) {
+            title = "My Books";
+        }
+        else if (fragment instanceof JournalEntryFragment) {
+            title = "Journal Entry Details";
+        }
+        else if (fragment instanceof JournalFragment) {
+            title = "Reading Journal";
+        }
+        else if (fragment instanceof MatchOptionsFragment) {
+            title = "Books to Match";
+        }
+        else if (fragment instanceof MatchResultsFragment) {
+            title = "Book Matches";
+        }
+        else if (fragment instanceof MatchSearchFragment) {
+            title = "Search Books to Match";
+        }
+        else if (fragment instanceof MyBooksFragment) {
+            title = "My Books";
+        }
+        else if (fragment instanceof OpenBooksFragment) {
+            title = "My Current Reads";
+        }
+        else if (fragment instanceof RecsFragment) {
+            title = "Recommendations";
+        }
+        else if (fragment instanceof WelcomeFragment) {
+            title = "Home";
+        }
+
+        toolbar.setTitle(title);
+    }
+
+    // Helper method to find menu items
+    private MenuItem findMenuItem(int id) {
+        return menu.findItem(id);
     }
 
     public void setBookToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToBooksFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Viewing a Book")
-                .setMessage("Here is where you can view a book's data. Tap the edit button to update or change the data.")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setBookResultsToolbar() {
+        showBackButton(true);
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
-
-        backButton.setOnClickListener(v -> navigator.navigateToBookSearchFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Results of a book search")
-                .setMessage("Here are the results of your search. Tap briefly for info, or tap and hold to add to your collection.")
-                .setPositiveButton("Got it", null)
-                .show());
-
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
     }
 
     public void setBookSearchToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToBooksFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Search for a new book")
-                .setMessage("Enter the title and/or author of the book you'd like to search for.")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setBooksToolbar() {
+        // No back button for main section
+        showBackButton(false);
 
-        backButton.setVisibility(View.GONE);
-        helpButton.setVisibility(View.GONE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.VISIBLE);
-        searchButton.setVisibility(View.VISIBLE);
-        addButton.setVisibility(View.VISIBLE);
+        // Show relevant menu items
+        MenuItem searchItem = findMenuItem(R.id.search);
+        MenuItem sortItem = findMenuItem(R.id.sort);
+        MenuItem helpItem = findMenuItem(R.id.help);
 
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Viewing all books")
-                .setMessage("Enter search information in the box below, tap the search button to search, " +
-                        "or tap the plus to add a new book to your collection.")
-                .setPositiveButton("Got it", null)
-                .show());
-
-        searchButton.setOnClickListener(v -> {
-            // TODO: implement filter/sort functionality
-        });
-
-        addButton.setOnClickListener(v -> navigator.navigateToBookSearchFragment());
-
+        if (searchItem != null) searchItem.setVisible(true);
+        if (sortItem != null) sortItem.setVisible(true);
+        if (helpItem != null) helpItem.setVisible(true);
     }
 
     public void setHabitsToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToRecsFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Recommendations based on reading habits")
-                .setMessage("Tap to get recommendations based on the books you've already read and liked.")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setJournalEntryToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToJournalFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Viewing journal entry")
-                .setMessage("Tap the edit icon to edit this journal entry.")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setJournalToolbar() {
 
-        backButton.setVisibility(View.GONE);
-        helpButton.setVisibility(View.GONE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.VISIBLE);
-        searchButton.setVisibility(View.VISIBLE);
-        addButton.setVisibility(View.VISIBLE);
+        // No back button for main section
+        showBackButton(false);
 
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Reading journal")
-                .setMessage("Tap and hold to view a journal entry details, filter by title/author, or add a new entry.")
-                .setPositiveButton("Got it", null)
-                .show());
+        // Show relevant menu items
+        MenuItem searchItem = findMenuItem(R.id.search);
+        MenuItem sortItem = findMenuItem(R.id.sort);
+        MenuItem helpItem = findMenuItem(R.id.help);
 
-        searchButton.setOnClickListener(v -> {
-            // TODO: implement search/filter
-        });
-
-        addButton.setOnClickListener(v -> navigator.navigateToOpenBooksFragment());
+        if (searchItem != null) searchItem.setVisible(true);
+        if (sortItem != null) sortItem.setVisible(true);
+        if (helpItem != null) helpItem.setVisible(true);
 
     }
 
     public void setMatchOptionsToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToRecsFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Choosing a book to match")
-                .setMessage("Tap and hold the book you'd like to get similar recommendations to.")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setMatchResultsToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToMatchSearchFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Viewing similar books")
-                .setMessage("Tap and hold to add a book to your collection")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setMatchSearchToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToRecsFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Find similar books")
-                .setMessage("Enter the title and/or author of a book you'd like to find a book similar to")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setMyBooksToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.VISIBLE);
-        searchButton.setVisibility(View.VISIBLE);
-        addButton.setVisibility(View.GONE);
+        // No back button for main section
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToOpenBooksFragment());
+        // Show relevant menu items
+        MenuItem searchItem = findMenuItem(R.id.search);
+        MenuItem sortItem = findMenuItem(R.id.sort);
+        MenuItem helpItem = findMenuItem(R.id.help);
 
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Viewing my books")
-                .setMessage("Enter search information in the box below, tap the search button to search, " +
-                        "or tap and hold a book to add to current reads.")
-                .setPositiveButton("Got it", null)
-                .show());
-
-        searchButton.setOnClickListener(v -> {
-            // TODO: implement filter/sort functionality
-        });
-
-        addButton.setOnClickListener(v -> navigator.navigateToBookSearchFragment());
+        if (searchItem != null) searchItem.setVisible(true);
+        if (sortItem != null) sortItem.setVisible(true);
+        if (helpItem != null) helpItem.setVisible(true);
 
     }
 
     public void setOpenBooksToolbar() {
 
-        backButton.setVisibility(View.VISIBLE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.VISIBLE);
-        searchButton.setVisibility(View.VISIBLE);
-        addButton.setVisibility(View.VISIBLE);
+        showBackButton(true);
 
-        backButton.setOnClickListener(v -> navigator.navigateToJournalFragment());
-
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Current reads")
-                .setMessage("Tap and hold to create a new journal entry, search for books, or add a new current read.")
-                .setPositiveButton("Got it", null)
-                .show());
-
-        searchButton.setOnClickListener(v -> {
-            // TODO: implement search/filter method
-        });
-
-        addButton.setOnClickListener(v -> navigator.navigateToMyBooksFragment());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setRecsToolbar() {
 
-        backButton.setVisibility(View.GONE);
-        helpButton.setVisibility(View.GONE);
-        helpButton.setVisibility(View.VISIBLE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(false);
 
-        helpButton.setOnClickListener(v -> new AlertDialog.Builder(activity).setTitle("Recommendations")
-                .setMessage("Choose a recommendation strategy.")
-                .setPositiveButton("Got it", null)
-                .show());
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
+
+    }
+
+    public void setWelcomeToolbar() {
+
+        showBackButton(false);
+
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(true);
+        }
 
     }
 
     public void setBlankToolbar() {
-        backButton.setVisibility(View.GONE);
-        helpButton.setVisibility(View.GONE);
-        searchInput.setVisibility(View.GONE);
-        searchButton.setVisibility(View.GONE);
-        addButton.setVisibility(View.GONE);
+        showBackButton(false);
+
+        MenuItem helpItem = findMenuItem(R.id.help);
+        if (helpItem != null) {
+            helpItem.setVisible(false);
+        }
+    }
+
+    // Methods to handle menu item clicks
+    public boolean handleMenuItemClick(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == android.R.id.home) {
+            // Back button clicked
+            handleBackButton();
+            return true;
+        } else if (id == R.id.help) {
+            // Help button clicked
+            showHelpDialog();
+            return true;
+        } else if (id == R.id.search) {
+            // Search button clicked
+            handleSearch();
+            return true;
+        } else if (id == R.id.sort) {
+            // Sort button clicked
+            handleSort();
+            return true;
+        }
+
+        return false;
+    }
+
+    private void handleBackButton() {
+
+        if (currentFragment == null) {
+            return;
+        }
+
+        Fragment parentFragment = currentFragment.getParentFragment();
+        if (parentFragment != null && parentFragment instanceof BackPressHandler) {
+            ((BackPressHandler) parentFragment).onBackPressed();
+        }
+        else {
+            // Default behavior - let the system pop the back stack
+            ((AppCompatActivity)activity).onBackPressed();
+        }
+    }
+
+    private void showHelpDialog() {
+        String title = "Help";
+        String message = "Help information";
+
+        if (currentFragment instanceof BookFragment) {
+            title = "Book Details";
+            message = "Here is where you can view a book's data. Tap the edit button to update or change the data.";
+        }
+        else if (currentFragment instanceof BookResultsFragment) {
+            title = "Book Search Results";
+            message = "Viewing results of book search. Tap and hold to add a book to your collection.";
+        }
+        else if (currentFragment instanceof BookSearchFragment) {
+            title = "Book Search";
+            message = "Enter a title and/or author to search for a new book.";
+        }
+        else if (currentFragment instanceof BooksFragment) {
+            title = "My Books";
+            message = "Tap an icon to search or sort.";
+        }
+        else if (currentFragment instanceof JournalEntryFragment) {
+            title = "Journal Entry Details";
+            message = "Now viewing details of a reading activity. Tap to save or edit.";
+        }
+        else if (currentFragment instanceof JournalFragment) {
+            title = "My Reading Journal";
+            message = "Tap an icon to search or sort";
+        }
+        else if (currentFragment instanceof MatchOptionsFragment) {
+            title = "Books to Match";
+            message = "To get recommendations based on a book, tap and hold on the book.";
+        }
+        else if (currentFragment instanceof MatchResultsFragment) {
+            title = "Book Matches";
+            message = "Now viewing results of the recommendation search based on a similar book";
+        }
+        else if (currentFragment instanceof MatchSearchFragment) {
+            title = "Search Books to Match";
+            message = "Enter the title and/or author of a book you'd like to find similar books to.";
+        }
+        else if (currentFragment instanceof MyBooksFragment) {
+            title = "My Books";
+            message = "Viewing all books. Tap and hold to add a book to your current reads.";
+        }
+        else if (currentFragment instanceof OpenBooksFragment) {
+            title = "My Current Reads";
+            message = "Viewing your current reads. Tap and hold a book to log a new reading activity.";
+        }
+        else if (currentFragment instanceof RecsFragment) {
+            title = "Recommendations";
+            message = "Choose how you'd like to receive your recommendations.";
+        }
+        else if (currentFragment instanceof WelcomeFragment) {
+            title = "Home";
+            message = "Welcome!";
+        }
+
+        new AlertDialog.Builder(activity)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("Got it", null)
+                .show();
+    }
+
+    private void handleSearch() {
+        if (currentFragment instanceof BooksFragment) {
+            // TODO: Open search for books
+        }
+        else if (currentFragment instanceof JournalFragment) {
+            // TODO: Open search for journal entries
+        } else if (currentFragment instanceof MyBooksFragment) {
+            // TODO: Open search for books
+        }
+
+        // TODO: Other fragment-specific search handling
+    }
+
+    private void handleSort() {
+        if (currentFragment instanceof BooksFragment) {
+            // Show sort options for books
+            new AlertDialog.Builder(activity)
+                    .setTitle("Sort Books")
+                    .setItems(new String[]{"Title", "Author", "Date Added"}, (dialog, which) -> {
+                        // Handle sort selection
+                    })
+                    .show();
+        } else if (currentFragment instanceof JournalFragment) {
+            // Show sort options for journal entries
+        }
+        // TODO: Other fragment-specific sort handling
+    }
+
+    // Add to ToolbarBuilder.java
+    public void updateToolbarForActiveFragment(Fragment activeFragment) {
+        Log.d("FragmentDebug", "ToolbarBuilder updateToolbarForActiveFragment");
+        Log.d("FragmentDebug", "updateToolbarForActiveFragment called with: " +
+                (activeFragment != null ? activeFragment.getClass().getSimpleName() +
+                        "@" + Integer.toHexString(System.identityHashCode(activeFragment)) : "null"));
+
+        // Check each host fragment explicitly
+        Log.d("FragmentDebug", "homeHostFragment instanceof check: " +
+                (activeFragment instanceof HomeHostFragment));
+        Log.d("FragmentDebug", "booksHostFragment instanceof check: " +
+                (activeFragment instanceof BooksHostFragment));
+        Log.d("FragmentDebug", "recsHostFragment instanceof check: " +
+                (activeFragment instanceof RecsHostFragment));
+        Log.d("FragmentDebug", "journalHostFragment instanceof check: " +
+                (activeFragment instanceof JournalHostFragment));
+
+        Fragment fragmentToUse = null;
+
+        if (activeFragment instanceof BooksHostFragment) {
+            fragmentToUse = ((BooksHostFragment) activeFragment).getCurrentVisibleFragment();
+        } else if (activeFragment instanceof JournalHostFragment) {
+            fragmentToUse = ((JournalHostFragment) activeFragment).getCurrentVisibleFragment();
+        } else if (activeFragment instanceof RecsHostFragment) {
+            fragmentToUse = ((RecsHostFragment) activeFragment).getCurrentVisibleFragment();
+        } else if (activeFragment instanceof HomeHostFragment) {
+            fragmentToUse = ((HomeHostFragment) activeFragment).getCurrentVisibleFragment();
+        }
+
+        if (fragmentToUse != null) {
+            Log.d("ToolbarBuilder", "Using child fragment: " + fragmentToUse.getClass().getSimpleName());
+            buildToolbar(fragmentToUse);
+        } else {
+            Log.d("ToolbarBuilder", "No child fragment found, using host: " +
+                    (activeFragment != null ? activeFragment.getClass().getSimpleName() : "null"));
+            buildToolbar(activeFragment);
+        }
     }
 
 }

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Rounded corners -->
+    <corners android:radius="24dp" />
+
+    <!-- Fill color - you will replace with your actual color -->
+    <solid android:color="#E6E1FF" />
+
+    <!-- Size - making it pill-shaped to match design -->
+    <size
+        android:width="72dp"
+        android:height="40dp" />
+</shape>

@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -33,16 +34,23 @@ So it has to have a back button that goes to OpenBooksFragment
 Also, the long click does something different from in BooksFragment
 It uses view binding, a layout manager, a recycler view, a RecyclerAdapterBooks, a book list, layout elements, and a BookFirebaseHelper.
  */
-public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
+public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, Searchable {
+
+    private static final String KEY_RECYCLER_STATE = "recycler_state";
+    private static final String KEY_SELECTED_POSITION = "selected_position";
+    private static final String KEY_SEARCH_QUERY = "search_query";
 
     private FragmentMyBooksBinding binding;
     private LinearLayoutManager layoutManager;
+    private GridLayoutManager gridLayoutManager;
     private RecyclerView recyclerView;
     private RecyclerAdapterBooks adapter;
     private List<Book> bookList = new ArrayList<>();
     private BookFirebaseHelper fbHelper;
     private ProgressBar progressBar;
     private TextView noBooks;
+    private int selectedPosition = RecyclerView.NO_POSITION;
+    private String currentSearchQuery = "";
 
     public MyBooksFragment() {
         // Required empty public constructor
@@ -75,7 +83,14 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        updateColors();
+        if (savedInstanceState != null) {
+            Parcelable listState = savedInstanceState.getParcelable(KEY_RECYCLER_STATE);
+            if (listState != null) {
+                layoutManager.onRestoreInstanceState(listState);
+            }
+            selectedPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION, RecyclerView.NO_POSITION);
+            currentSearchQuery = savedInstanceState.getString(KEY_SEARCH_QUERY, "");
+        }
     }
 
     @Override
@@ -85,8 +100,6 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setToolbar(this);
         }
-
-        updateColors();
 
         loadBooks();
 
@@ -100,6 +113,19 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
                 }
             });
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Save RecyclerView state
+        if (layoutManager != null) {
+            Parcelable listState = layoutManager.onSaveInstanceState();
+            outState.putParcelable(KEY_RECYCLER_STATE, listState);
+            outState.putInt(KEY_SELECTED_POSITION, selectedPosition);
+            outState.putString(KEY_SEARCH_QUERY, currentSearchQuery);
+        }
+
     }
 
     /*
@@ -171,9 +197,8 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
         adapter.setOnNoteListener(this);
         recyclerView.setAdapter(adapter);
 
-        // Set up layout manager as a field to access later
-        layoutManager = new LinearLayoutManager(getContext());
-        binding.rview.setLayoutManager(layoutManager);
+        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        recyclerView.setLayoutManager(gridLayoutManager);
     }
 
     protected void loadBooks() {
@@ -209,15 +234,9 @@ public class MyBooksFragment extends Fragment implements RecyclerAdapterBooks.On
         });
     }
 
+
     @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-
-            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
-            progressBar.setBackgroundColor(Color.TRANSPARENT);
-        }
+    public void performSearch(String query) {
+        // TODO: write search logic
     }
-
 }

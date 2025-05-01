@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -29,13 +30,13 @@ This class represents a MatchResultsFragment.
 A match results fragment displays the results of a user's Match search in a recycler view.
 It uses view binding, a recycler view, a RecyclerAdapterBooks, a list of results, a layout manager, layout fields and elements, and
  */
-public class MatchResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
+public class MatchResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
 
     private FragmentMatchResultsBinding binding;
     private RecyclerView rView;
     private RecyclerAdapterBooks adapter;
     private List<Book> results = new ArrayList<>();
-    private LinearLayoutManager layoutManager;
+    private GridLayoutManager gridLayoutManager;
     private TextView noResults;
 
     /*
@@ -81,15 +82,13 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        updateColors();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity)getActivity()).setToolbar(this);
-            updateColors();
+            ((MainActivity) getActivity()).setToolbar(this);
         }
     }
 
@@ -100,8 +99,8 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         rView.setAdapter(adapter);
 
         // Set up layout manager as a field to access later
-        layoutManager = new LinearLayoutManager(getContext());
-        rView.setLayoutManager(layoutManager);
+        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        rView.setLayoutManager(gridLayoutManager);
     }
 
     /*
@@ -134,12 +133,5 @@ public class MatchResultsFragment extends Fragment implements RecyclerAdapterBoo
         // TODO: this will navigate to a book display, but it has to be different from BookFragment so that it can have a different back button that goes back to MatchResultsFragment rather than BooksFragment
     }
 
-    @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-        }
-    }
 
 }

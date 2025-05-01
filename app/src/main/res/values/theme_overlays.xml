@@ -95,32 +95,4 @@
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh_highContrast</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest_highContrast</item>
     </style>
-
-    <style name="ThemeOverlay.Books" parent="">
-        <item name="colorPrimary">@color/my_theme_books_medium</item>
-        <item name="colorSecondary">@color/my_theme_books_light</item>
-        <item name="colorTertiary">@color/my_theme_books_dark</item>
-        <item name="colorSurfaceContainer">@color/my_theme_books_background</item>
-        <item name="colorSurface">@color/my_theme_books_alt_background</item>
-        <item name="colorPrimaryDark">@color/my_theme_books_text</item>
-    </style>
-
-    <style name="ThemeOverlay.Recs" parent="">
-        <item name="colorPrimary">@color/my_theme_recs_medium</item>
-        <item name="colorSecondary">@color/my_theme_recs_light</item>
-        <item name="colorTertiary">@color/my_theme_recs_dark</item>
-        <item name="colorSurfaceContainer">@color/my_theme_recs_background</item>
-        <item name="colorSurface">@color/my_theme_recs_alt_background</item>
-        <item name="colorPrimaryDark">@color/my_theme_recs_text</item>
-    </style>
-
-    <style name="ThemeOverlay.Journal" parent="">
-        <item name="colorPrimary">@color/my_theme_journal_medium</item>
-        <item name="colorSecondary">@color/my_theme_journal_light</item>
-        <item name="colorTertiary">@color/my_theme_journal_dark</item>
-        <item name="colorSurfaceContainer">@color/my_theme_journal_background</item>
-        <item name="colorSurface">@color/my_theme_journal_alt_background</item>
-        <item name="colorPrimaryDark">@color/my_theme_journal_text</item>
-    </style>
-
 </resources>

@@ -1,20 +1,22 @@
 package com.example.bookishproject;
 
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 import com.example.bookishproject.databinding.FragmentBooksBinding;
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,16 +30,25 @@ It uses view binding, a layout manager to manage the recycler view, a recycler v
 an array list of Books, and a BookFirebaseHelper to manage connections with the database.
 This Fragment implements the OnNoteListener interface
  */
-public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
+public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, Searchable {
 
+    private static final String KEY_RECYCLER_STATE = "recycler_state";
+    private static final String KEY_SELECTED_POSITION = "selected_position";
+    private static final String KEY_SEARCH_QUERY = "search_query";
+
+    private String currentSearchQuery = "";
+    private int selectedPosition = RecyclerView.NO_POSITION;
     private FragmentBooksBinding binding;
-    private LinearLayoutManager layoutManager;
+    private BookFirebaseHelper fbHelper;
+    private List<Book> bookList = new ArrayList<>();
     private RecyclerView recyclerView;
     private RecyclerAdapterBooks adapter;
-    private List<Book> bookList = new ArrayList<>();
-    private BookFirebaseHelper fbHelper;
+    private GridLayoutManager gridLayoutManager;
     private ProgressBar progressBar;
     private TextView noBooks;
+    private ExtendedFloatingActionButton addBook;
+
+
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
@@ -46,6 +57,7 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
         binding = FragmentBooksBinding.inflate(inflater, container, false);
 
         // setting variables for the Fragment
+        addBook = binding.fabAddBook;
         recyclerView = binding.rview;
         progressBar = binding.progressBar;
         noBooks = binding.messageNoBooks;
@@ -62,7 +74,36 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        updateColors();
+        loadBooks();
+
+        // First check if we have state in arguments (from navigation)
+        Bundle scrollState = getArguments() != null ?
+                getArguments().getBundle("SCROLL_STATE") : null;
+
+        if (scrollState != null) {
+            Parcelable listState = scrollState.getParcelable(KEY_RECYCLER_STATE);
+            if (listState != null) {
+                // Restore from navigation
+                gridLayoutManager.onRestoreInstanceState(listState);
+            }
+        }
+        // Then check saved instance state (for config changes)
+        else if (savedInstanceState != null) {
+            Parcelable listState = savedInstanceState.getParcelable(KEY_RECYCLER_STATE);
+            if (listState != null) {
+                gridLayoutManager.onRestoreInstanceState(listState);
+            }
+            selectedPosition = savedInstanceState.getInt(KEY_SELECTED_POSITION,
+                    RecyclerView.NO_POSITION);
+            currentSearchQuery = savedInstanceState.getString(KEY_SEARCH_QUERY, "");
+        }
+
+        addBook.setOnClickListener(v -> {
+            if (getParentFragment() instanceof BooksHostFragment) {
+                ((BooksHostFragment) getParentFragment()).navigateToBookSearch();
+            }
+        });
+
     }
 
     @Override
@@ -85,8 +126,19 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
                 }
             });
         }
+    }
 
-        updateColors();
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // Save RecyclerView state
+        if (gridLayoutManager != null) {
+            Parcelable listState = gridLayoutManager.onSaveInstanceState();
+            outState.putParcelable(KEY_RECYCLER_STATE, listState);
+            outState.putInt(KEY_SELECTED_POSITION, selectedPosition);
+            outState.putString(KEY_SEARCH_QUERY, currentSearchQuery);
+        }
+
     }
 
     /*
@@ -116,9 +168,8 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
      */
     @Override
     public void onNoteLongClick(Book book) {
-        if (getActivity() instanceof MainActivity) {
-            // ask the MainActivity to go to BookFragment
-            ((MainActivity) getActivity()).getNavigator().navigateToBookFragment(book);
+        if (getParentFragment() instanceof BooksHostFragment) {
+            ((BooksHostFragment) getParentFragment()).navigateToBook(book);
         }
     }
 
@@ -134,10 +185,8 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
         // assign the adapter to the recycler view
         recyclerView.setAdapter(adapter);
 
-        // Set up layout manager as a field to access later
-        layoutManager = new LinearLayoutManager(getContext());
-        // assign this layout manager to the recycler view
-        binding.rview.setLayoutManager(layoutManager);
+        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        recyclerView.setLayoutManager(gridLayoutManager);
     }
 
     /*
@@ -147,6 +196,10 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
 
         // set progress bar to visible
         progressBar.setVisibility(View.VISIBLE);
+
+        // Save current scroll state before loading
+        final Parcelable savedState = gridLayoutManager != null ?
+                gridLayoutManager.onSaveInstanceState() : null;
 
         // get all the books from the database using the BooksFirebaseHelper
         fbHelper.getAllBooks(books -> {
@@ -162,19 +215,26 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
                 // begone, progress bar!
                 progressBar.setVisibility(View.GONE);
 
-                // clear the book list to avoid adding everything a million times
-                bookList.clear();
-                // add all books back
-                bookList.addAll(books);
-
-                if (adapter != null) {
+                // Don't clear and re-add if sizes match and content is same
+                // This prevents unnecessary adapter refresh that resets position
+                if (bookList.size() != books.size() || !bookList.containsAll(books)) {
+                    bookList.clear();
+                    bookList.addAll(books);
                     adapter.notifyDataSetChanged();
-
-                    // Show empty state or content based on results
-                    if (bookList.isEmpty()) {
-                        noBooks.setVisibility(View.VISIBLE);
-                    }
                 }
+
+                // Show empty state if needed
+                if (bookList.isEmpty()) {
+                    noBooks.setVisibility(View.VISIBLE);
+                } else {
+                    noBooks.setVisibility(View.GONE);
+                }
+
+                // Restore scroll position after data loaded
+                if (savedState != null) {
+                    gridLayoutManager.onRestoreInstanceState(savedState);
+                }
+
             });
         });
     }
@@ -192,15 +252,25 @@ public class BooksFragment extends Fragment implements RecyclerAdapterBooks.OnNo
         }
     }
 
-    @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
+    // Helper method to be called before navigation
+    public void saveScrollPosition() {
+        if (gridLayoutManager != null) {
+            // Save the current position to a persistent field
+            Bundle scrollState = new Bundle();
+            Parcelable listState = gridLayoutManager.onSaveInstanceState();
+            scrollState.putParcelable(KEY_RECYCLER_STATE, listState);
 
-            progressBar.setIndeterminateTintList(ColorStateList.valueOf(activity.currentInterestColor));
-            progressBar.setBackgroundColor(Color.TRANSPARENT);
+            // Store it with the fragment
+            if (getArguments() == null) {
+                setArguments(new Bundle());
+            }
+            getArguments().putBundle("SCROLL_STATE", scrollState);
         }
     }
 
+
+    @Override
+    public void performSearch(String query) {
+        // TODO: write search logic for Books
+    }
 }

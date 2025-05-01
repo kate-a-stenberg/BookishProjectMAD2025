@@ -46,13 +46,27 @@
         <item name="colorSurfaceContainer">@color/md_theme_surfaceContainer</item>
         <item name="colorSurfaceContainerHigh">@color/md_theme_surfaceContainerHigh</item>
         <item name="colorSurfaceContainerHighest">@color/md_theme_surfaceContainerHighest</item>
+
+        <item name="android:fontFamily">@font/barlow_font_family</item>
+        <item name="fontFamily">@font/barlow_font_family</item>
     </style>
 
-    <style name="CustomTabTextAppearance" parent="TextAppearance.Design.Tab">
-        <item name="android:fontFamily">@font/adamina_regular</item>
-        <item name="fontFamily">@font/adamina_regular</item>
-        <item name="android:textSize">14sp</item>
-        <item name="textAllCaps">false</item>
+    <style name="BottomNavigationStyle" parent="Widget.MaterialComponents.BottomNavigationView">
+        <item name="itemTextAppearanceActive">@style/TextAppearance.BottomNavigationView.Active</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.BottomNavigationView.Inactive</item>
+        <item name="itemBackground">@drawable/nav_icon_background_selector</item>
     </style>
 
+    <style name="TextAppearance.BottomNavigationView.Active" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/barlow_font_family</item>
+        <item name="android:fontFamily">@font/barlow_font_family</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="TextAppearance.BottomNavigationView.Inactive" parent="TextAppearance.MaterialComponents.Caption">
+        <item name="fontFamily">@font/barlow_font_family</item>
+        <item name="android:fontFamily">@font/barlow_font_family</item>
+        <item name="android:textSize">12sp</item>
+    </style>
 </resources>

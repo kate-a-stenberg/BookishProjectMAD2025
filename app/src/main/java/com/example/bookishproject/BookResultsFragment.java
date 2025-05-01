@@ -4,6 +4,7 @@ import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,7 +31,7 @@ A BookResultsFragment displays a list of books in a recycler view that were retu
 It uses view binding, a recycler view, a recycler adapter, an array list of results, and relevant layout fields and elements
 It also has a static final String variable.
  */
-public class BookResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener, ColorUpdatable {
+public class BookResultsFragment extends Fragment implements RecyclerAdapterBooks.OnNoteListener {
 
     // this variable is the name of the Bundle that contains information about the query that was run.
     // it receives this from BookSearchFragment
@@ -42,6 +43,8 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
     private final List<Book> results = new ArrayList<>();
     private TextView noResults;
     private ProgressBar progressBar;
+    private GridLayoutManager gridLayoutManager;
+
 
     /*
     Method to create a BookResultsFragment from a certain query
@@ -139,8 +142,8 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
         adapter = new RecyclerAdapterBooks(getContext(), results);
         // give the recycler view this as an OnNoteListener--it will use the event listeners defined here to determine what to do
         adapter.setOnNoteListener(this);
-        rView.setLayoutManager(new LinearLayoutManager(getContext()));
-        rView.setAdapter(adapter);
+        gridLayoutManager = new GridLayoutManager(getContext(), 3);
+        rView.setLayoutManager(gridLayoutManager);
     }
 
     /*
@@ -262,11 +265,4 @@ public class BookResultsFragment extends Fragment implements RecyclerAdapterBook
 
     }
 
-    @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-        }
-    }
 }

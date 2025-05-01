@@ -19,7 +19,6 @@
         android:text="Book Title"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:fontFamily="@font/adamina_regular"
         android:layout_marginBottom="16dp" />
 
     <TextView
@@ -27,7 +26,6 @@
         android:layout_height="wrap_content"
         android:text="Reading Status"
         android:textSize="16sp"
-        android:fontFamily="@font/adamina_regular"
         android:layout_marginBottom="8dp" />
 
     <RadioGroup
@@ -41,33 +39,25 @@
             android:id="@+id/statusToRead"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Unread"
-            android:fontFamily="@font/adamina_regular"
-            app:buttonTint="@color/my_theme_books_interest" />
+            android:text="Unread" />
 
         <RadioButton
             android:id="@+id/statusCurrentlyReading"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Currently Reading"
-            android:fontFamily="@font/adamina_regular"
-            app:buttonTint="@color/my_theme_books_interest" />
+            android:text="Currently Reading" />
 
         <RadioButton
             android:id="@+id/statusRead"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Read"
-            android:fontFamily="@font/adamina_regular"
-            app:buttonTint="@color/my_theme_books_interest" />
+            android:text="Read" />
 
         <RadioButton
             android:id="@+id/statusDNF"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Did Not Finish"
-            android:fontFamily="@font/adamina_regular"
-            app:buttonTint="@color/my_theme_books_interest" />
+            android:text="Did Not Finish" />
 
     </RadioGroup>
 
@@ -76,7 +66,6 @@
         android:layout_height="wrap_content"
         android:text="Rating"
         android:textSize="16sp"
-        android:fontFamily="@font/adamina_regular"
         android:layout_marginBottom="8dp" />
 
     <RatingBar
@@ -86,7 +75,6 @@
         android:numStars="5"
         android:stepSize="0.5"
         android:rating="0"
-        android:progressTint="@color/my_theme_books_interest"
         android:layout_marginBottom="16dp" />
 
     <TextView
@@ -94,7 +82,6 @@
         android:layout_height="wrap_content"
         android:text="Review"
         android:textSize="16sp"
-        android:fontFamily="@font/adamina_regular"
         android:layout_marginBottom="8dp" />
 
     <com.google.android.material.textfield.TextInputLayout
@@ -111,19 +98,16 @@
             android:inputType="textMultiLine"
             android:minLines="1"
             android:maxLines="5"
-            android:fontFamily="@font/adamina_regular"
             android:text="Your thoughts on this book..." />
     </com.google.android.material.textfield.TextInputLayout>
 
     <!-- Save Button -->
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/buttonBookEditSave"
+        android:id="@+id/bookSubmit"
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="Save Details"
         android:textSize="16sp"
-        android:fontFamily="@font/adamina_regular"
-        android:backgroundTint="@color/my_theme_books_interest"
         app:cornerRadius="8dp" />
 
 </LinearLayout>

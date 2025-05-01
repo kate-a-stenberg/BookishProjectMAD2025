@@ -17,7 +17,7 @@ This class represents a RecsFragment.
 A Recommendations Fragment gives users the choice about what kind of recommendations they want.
 It uses view binding and layout buttons.
  */
-public class RecsFragment extends Fragment implements ColorUpdatable {
+public class RecsFragment extends Fragment {
 
     FragmentRecsBinding binding;
     private Button buttonMatch, buttonPrefs, buttonHabits;
@@ -39,8 +39,6 @@ public class RecsFragment extends Fragment implements ColorUpdatable {
     public void onViewCreated (View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        updateColors();
-
         // preferences button does nothing yet
         buttonPrefs.setOnClickListener(v -> {
             Toast.makeText(getContext(), "This functionality coming soon!", Toast.LENGTH_SHORT).show();
@@ -48,8 +46,8 @@ public class RecsFragment extends Fragment implements ColorUpdatable {
 
         // Match button goes to MatchSearchFragment
         buttonMatch.setOnClickListener(v -> {
-            if (getActivity() instanceof MainActivity) {
-                ((MainActivity)getActivity()).getNavigator().navigateToMatchSearchFragment();
+            if (getParentFragment() instanceof RecsHostFragment) {
+                ((RecsHostFragment)getParentFragment()).navigateToMatchSearch();
             }
         });
 
@@ -65,19 +63,7 @@ public class RecsFragment extends Fragment implements ColorUpdatable {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
             ((MainActivity) getActivity()).setToolbar(this);
-            updateColors();
         }
     }
 
-    @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-
-            binding.buttonRecsHabits.setBackgroundColor(activity.currentInterestColor);
-            binding.buttonRecsMatch.setBackgroundColor(activity.currentInterestColor);
-            binding.buttonRecsPreferences.setBackgroundColor(activity.currentInterestColor);
-        }
-    }
 }

@@ -15,13 +15,13 @@
         android:layout_margin="8dp"
         android:layout_gravity="top"
         android:visibility="gone"
+        android:backgroundTint="@color/md_theme_primaryContainer"
         app:cardElevation="4dp">
 
         <TextView
             android:id="@+id/editMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/adamina_regular"
             android:gravity="center"
             android:padding="8dp"
             android:text="You are currently editing this book's details" />
@@ -38,89 +38,111 @@
             android:orientation="vertical"
             android:padding="16dp">
 
-            <!-- Book Info card -->
+            <ImageView
+                android:id="@+id/imageCover"
+                android:layout_width="250dp"
+                android:layout_height="375dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                android:contentDescription="Book Cover"
+                android:scaleType="centerCrop"
+                android:src="@drawable/book_cover_background" />
 
-            <androidx.cardview.widget.CardView
-                android:id="@+id/bookInfoCard"
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/md_theme_outlineVariant"/>
+
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
+                android:orientation="horizontal"
+                android:layout_marginTop="4dp">
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                <TextView
+                    android:id="@+id/bookDetails"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:text="Book Details"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/myDetails"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="16dp"
-                    app:backgroundTint="@color/my_theme_books_interest"
-                    app:tint="@color/md_theme_onPrimary"
-                    android:src="@drawable/ic_details" />
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:textAllCaps="false"
+                    android:text="My Details"
+                    android:layout_gravity="end"
+                    style="@style/Widget.MaterialComponents.Button.TextButton" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:padding="16dp">
+            </RelativeLayout>
 
-                    <ImageView
-                        android:id="@+id/imageCover"
-                        android:layout_width="100dp"
-                        android:layout_height="150dp"
-                        android:contentDescription="Book Cover"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/book_cover_background" />
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:orientation="vertical">
-
-                        <TextView
-                            android:id="@+id/textBookTitle"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:fontFamily="@font/adamina_regular"
-                            android:text="Book Title"
-                            android:textSize="20sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/textSeries"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:fontFamily="@font/adamina_regular"
-                            android:text="SeriesName Number"
-                            android:textSize="14sp"
-                            android:textStyle="italic" />
-
-                        <TextView
-                            android:id="@+id/textBookAuthor"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="8dp"
-                            android:fontFamily="@font/adamina_regular"
-                            android:text="FirstName LastName"
-                            android:textSize="16sp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
+            <!-- Title info, NOT editable -->
 
             <TextView
-                android:id="@+id/bookDetails"
+                android:id="@+id/bookTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Title"
+                android:textSize="16sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/titleInputLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:fontFamily="@font/adamina_regular"
-                android:text="Book Details"
-                android:textSize="18sp"
-                android:textStyle="bold" />
+                android:focusable="false"
+                android:focusableInTouchMode="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/titleInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_books"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- Author info, NOT editable -->
+
+            <TextView
+                android:id="@+id/bookAuthor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="Author"
+                android:textSize="16sp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/authorInputLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:focusable="false"
+                android:focusableInTouchMode="false">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/authorInput"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:background="@drawable/text_layout_background_books"
+                    android:focusable="false"
+                    android:focusableInTouchMode="false"
+                    android:inputType="text" />
+            </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Series info, editable and not -->
 
@@ -129,7 +151,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Series"
                 android:textSize="16sp" />
 
@@ -149,7 +170,6 @@
                     android:background="@drawable/text_layout_background_books"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -166,7 +186,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_books"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -178,7 +197,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Number in series"
                 android:textSize="16sp" />
 
@@ -199,7 +217,6 @@
                     android:background="@drawable/text_layout_background_books"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -216,7 +233,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_books"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -228,7 +244,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Publication date"
                 android:textSize="16sp" />
 
@@ -249,7 +264,6 @@
                     android:background="@drawable/text_layout_background_books"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="visible" />
 
@@ -268,7 +282,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_books"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="gone" />
 
@@ -281,7 +294,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Genre"
                 android:textSize="16sp" />
 
@@ -332,7 +344,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Age level"
                 android:textSize="16sp" />
 
@@ -383,7 +394,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Tags"
                 android:textSize="16sp" />
 
@@ -404,7 +414,6 @@
                     android:background="@drawable/text_layout_background_books"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="visible" />
 
@@ -423,7 +432,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_books"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="gone" />
 
@@ -436,7 +444,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Synopsis"
                 android:textSize="16sp" />
 
@@ -445,6 +452,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
                 android:focusable="false"
                 android:focusableInTouchMode="false"
                 android:visibility="visible">
@@ -457,42 +465,64 @@
                     android:background="@drawable/text_layout_background_books"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="textMultiLine"
                     android:visibility="visible" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Edit/Submit button -->
+            <!-- Delete button -->
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/bookEdit"
+            <TextView
+                android:id="@+id/deleteLabel"
                 android:layout_width="match_parent"
-                android:layout_height="56dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
-                android:textColor="@color/md_theme_onPrimary"
-                android:text="Edit"
+                android:text="Delete book"
                 android:textSize="16sp"
-                app:backgroundTint="@color/my_theme_books_interest"
-                app:cornerRadius="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/bookSubmit"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
-                android:textColor="@color/md_theme_onPrimary"
-                android:text="Submit"
-                android:textSize="16sp"
-                app:backgroundTint="@color/my_theme_books_interest"
                 android:visibility="gone"
-                app:cornerRadius="8dp" />
+                />
+
+            <Button
+                android:id="@+id/deleteButton"
+                style="@style/Widget.Material3.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="56dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
+                app:cornerRadius="8dp"
+                android:textColor="?attr/colorError"
+                app:strokeColor="?attr/colorError"
+                android:text="Delete"
+                android:visibility="gone"
+                />
 
         </LinearLayout>
 
     </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/bookSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        app:icon="@drawable/check_24px"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/bookEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit"
+        app:icon="@drawable/edit_24px"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="visible"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        />
 
     <include
         android:id="@+id/bookDetailsSheet"

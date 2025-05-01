@@ -6,8 +6,7 @@
                 <shape android:shape="rectangle">
                     <solid android:color="@color/md_theme_onPrimary" />
                     <stroke
-                        android:width="1dp"
-                        android:color="@color/my_theme_books_interest" />
+                        android:width="1dp" />
                     <corners android:radius="8dp" />
                     <padding android:right="12dp" />
                 </shape>

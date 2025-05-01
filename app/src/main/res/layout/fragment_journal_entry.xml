@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:layout_gravity="top"
+        android:backgroundTint="@color/md_theme_primaryContainer"
         android:visibility="gone"
         app:cardElevation="4dp">
 
@@ -21,7 +22,6 @@
             android:id="@+id/editMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/adamina_regular"
             android:gravity="center"
             android:padding="8dp"
             android:text="You are currently creating a new entry" />
@@ -44,30 +44,22 @@
                 android:id="@+id/bookInfoCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:backgroundTint="@color/md_theme_surfaceContainer"
                 app:cardCornerRadius="12dp"
                 app:cardElevation="4dp" >
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/bookDetails"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="16dp"
-                    app:backgroundTint="@color/my_theme_journal_interest"
-                    app:tint="@color/md_theme_onPrimary"
-                    android:src="@drawable/ic_details"
-                    android:visibility="gone"/>
-
-                <LinearLayout
+                <RelativeLayout
+                    android:id="@+id/bookContentLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
                     android:padding="16dp" >
 
                     <ImageView
                         android:id="@+id/imageCover"
                         android:layout_width="100dp"
                         android:layout_height="150dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_alignParentTop="true"
                         android:contentDescription="Book Cover"
                         android:scaleType="centerCrop"
                         android:src="@drawable/book_cover_background" />
@@ -75,14 +67,15 @@
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:orientation="vertical" >
+                        android:layout_alignParentTop="true"
+                        android:layout_toEndOf="@id/imageCover"
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/entryBookTitle"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/adamina_regular"
+                            android:paddingStart="16dp"
                             android:text="Book Title"
                             android:textSize="20sp"
                             android:textStyle="bold" />
@@ -92,7 +85,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:fontFamily="@font/adamina_regular"
+                            android:paddingStart="16dp"
                             android:text="SeriesName Number"
                             android:textSize="14sp"
                             android:textStyle="italic" />
@@ -102,13 +95,26 @@
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
-                            android:fontFamily="@font/adamina_regular"
+                            android:paddingStart="16dp"
                             android:text="FirstName LastName"
                             android:textSize="16sp" />
 
                     </LinearLayout>
 
-                </LinearLayout>
+                        <Button
+                            android:id="@+id/bookDetails"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignBottom="@id/imageCover"
+                            android:layout_toEndOf="@id/imageCover"
+                            android:paddingStart="16dp"
+                            android:text="View Book Details"
+                            android:textAllCaps="false"
+                            android:textColor="@color/md_theme_primary"
+                            android:textSize="14sp" />
+
+                </RelativeLayout>
 
             </androidx.cardview.widget.CardView>
 
@@ -117,7 +123,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Reading Activity Details"
                 android:textSize="18sp"
                 android:textStyle="bold" />
@@ -129,7 +134,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Date"
                 android:textSize="16sp" />
 
@@ -149,7 +153,6 @@
                     android:background="@drawable/text_layout_background_journal"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -166,7 +169,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_journal"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -178,7 +180,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Activity"
                 android:textSize="16sp" />
 
@@ -230,7 +231,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Pages read"
                 android:textSize="16sp" />
 
@@ -251,7 +251,6 @@
                     android:background="@drawable/text_layout_background_journal"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="visible" />
 
@@ -270,7 +269,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_journal"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="text"
                     android:visibility="gone" />
 
@@ -283,7 +281,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
                 android:text="Comments"
                 android:textSize="16sp" />
 
@@ -304,7 +301,6 @@
                     android:background="@drawable/text_layout_background_journal"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="textMultiLine"
                     android:visibility="visible" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -322,40 +318,36 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_journal"
-                    android:fontFamily="@font/adamina_regular"
                     android:inputType="textMultiLine"
                     android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Edit/Submit button -->
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/journalEdit"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
-                android:textColor="@color/md_theme_onPrimary"
-                android:text="Edit"
-                android:textSize="16sp"
-                app:backgroundTint="@color/my_theme_journal_interest"
-                app:cornerRadius="8dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/journalSubmit"
-                android:layout_width="match_parent"
-                android:layout_height="56dp"
-                android:layout_marginTop="16dp"
-                android:fontFamily="@font/adamina_regular"
-                android:textColor="@color/md_theme_onPrimary"
-                android:text="Submit"
-                android:textSize="16sp"
-                app:backgroundTint="@color/my_theme_journal_interest"
-                android:visibility="gone"
-                app:cornerRadius="8dp" />
-
         </LinearLayout>
 
     </ScrollView>
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/journalSave"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Save"
+        app:icon="@drawable/check_24px"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="gone"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        />
+
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+        android:id="@+id/journalEdit"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Edit"
+        app:icon="@drawable/edit_24px"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:visibility="visible"
+        app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

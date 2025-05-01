@@ -36,7 +36,7 @@ A journal entry displays view-only information about an reading activity that a 
 It has view binding, layout fields and elements, an Entry that it's based on.
 It also has a static final variable
  */
-public class JournalEntryFragment extends Fragment implements ColorUpdatable {
+public class JournalEntryFragment extends Fragment {
 
     // this variable is the name of the Bundle that contains information on the Entry whose information to populate its fields with
     // it receives this from JournalFragment via MainActivity
@@ -45,9 +45,9 @@ public class JournalEntryFragment extends Fragment implements ColorUpdatable {
     private FragmentJournalEntryBinding binding;
     private ImageView cover;
     private TextView title, series, author, entryHeading, dateInput, dateInputEditable, commentsInput, commentsInputEditable, editMessage, pagesReadInput, pagesReadInputEditable, pagesReadLabel;
+    private Button bookDetails;
     private CardView editModeIndicator, bookInfoCard, activityCard, activityCardEditable;
     private ScrollView scrollView;
-    private FloatingActionButton bookDetails;
     private TextInputLayout dateLayout, dateLayoutEditable, pagesReadLayout, pagesReadLayoutEditable, commentsLayout, commentsLayoutEditable;
     private Spinner activitySpinner, activitySpinnerEditable;
     private Button edit, submit;
@@ -103,9 +103,9 @@ public class JournalEntryFragment extends Fragment implements ColorUpdatable {
         author = binding.entryBookAuthor;
         entryHeading = binding.entryHeading;
         pagesReadLabel = binding.pagesReadLabel;
+        bookDetails = binding.bookDetails;
 
         bookInfoCard = binding.bookInfoCard;
-        bookDetails = binding.bookDetails;
 
         scrollView = binding.entryScrollView;
 
@@ -135,7 +135,7 @@ public class JournalEntryFragment extends Fragment implements ColorUpdatable {
         commentsLayoutEditable = binding.commentsLayoutEditable;
 
         edit = binding.journalEdit;
-        submit = binding.journalSubmit;
+        submit = binding.journalSave;
 
 
         return binding.getRoot();
@@ -178,10 +178,9 @@ public class JournalEntryFragment extends Fragment implements ColorUpdatable {
         }
 
         submit.setOnClickListener(v -> {
-            // TODO: save info to journal entry
 
             /*
-            TODO: things to set
+            Things to set
             book - set on onCreate()
             type - set here
             pages read - set here
@@ -217,7 +216,11 @@ public class JournalEntryFragment extends Fragment implements ColorUpdatable {
 
         });
 
-        updateColors();
+        bookDetails.setOnClickListener(v -> {
+            if (getParentFragment() instanceof JournalHostFragment) {
+                ((JournalHostFragment) getParentFragment()).navigateToBook(this.entry.getBook());
+            }
+        });
 
         setupKeyboardAdjustment(view);
 
@@ -227,8 +230,7 @@ public class JournalEntryFragment extends Fragment implements ColorUpdatable {
     public void onResume() {
         super.onResume();
         if (getActivity() instanceof MainActivity) {
-            ((MainActivity)getActivity()).setToolbar(this);
-            updateColors();
+            ((MainActivity) getActivity()).setToolbar(this);
         }
     }
 
@@ -359,22 +361,10 @@ public class JournalEntryFragment extends Fragment implements ColorUpdatable {
 
         submit.setVisibility(View.GONE);
         edit.setVisibility(View.VISIBLE);
-        edit.setBackgroundColor(getResources().getColor(R.color.my_theme_main_medium, null));
         edit.setEnabled(false);
 
     }
 
-    @Override
-    public void updateColors() {
-        if (getActivity() instanceof MainActivity) {
-            MainActivity activity = (MainActivity) getActivity();
-            activity.applyThemeColors(binding.getRoot(), activity.getCurrentSection());
-
-            editModeIndicator.setCardBackgroundColor(activity.currentInterestColor);
-            editMessage.setTextColor(activity.currentBackgroundColor);
-            binding.bookInfoCard.setCardBackgroundColor(activity.currentCardColor);
-        }
-    }
 
     // Add this to your Fragment or Activity
     private void setupKeyboardAdjustment(View rootView) {
