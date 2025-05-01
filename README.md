@@ -34,3 +34,4 @@ VERSIONS:
 - 1.1: (don't remember)
 - 1.2: (don't remember)
 - 1.3: added book editing, merged create/view entry fragments, changed colors, updated Journal/Entry UI
+- 1.4: restructured app to adhere to Google's Material Design principles, switched from TabLayout to BottomNavBar, converted from customer toolbar to TopAppBar, changed book cards to portrait orientation and changed info view, changed Journal recycler view from cards to linear layouts, changed Book detail layout, changed journal detail layout, added delete book functionality, linked from journal entry to book detail
