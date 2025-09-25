@@ -5,7 +5,7 @@
     android:id="@+id/booksView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BooksFragment">
+    tools:context="dev.kateastenberg.bookishproject.fragments.books.BooksFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rview"
@@ -32,12 +32,13 @@
 
     <TextView
         android:id="@+id/messageNoBooks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:text="You have no books! Add some by tapping the Add button!"
         android:textSize="18dp"
         android:visibility="gone"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

@@ -5,58 +5,76 @@
     android:id="@+id/frameLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BookSearchFragment">
+    tools:context="dev.kateastenberg.bookishproject.fragments.books.BookSearchFragment">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/textTitleSearch"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
-        android:gravity="clip_vertical|center_horizontal"
-        android:hint="Title"
-        app:layout_constraintBottom_toTopOf="@+id/textAuthorSearch"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textPrompt" />
-
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/textAuthorSearch"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center_horizontal"
-        android:hint="Author"
-        app:layout_constraintBottom_toTopOf="@+id/buttonBookSearch"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textTitleSearch" />
-
-    <Button
-        android:id="@+id/buttonBookSearch"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:textSize="16sp"
-        android:textColor="@color/md_theme_onPrimary"
-        android:layout_margin="16dp"
-        app:cornerRadius="8dp"
-        android:text="Search"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textAuthorSearch" />
-
-    <TextView
-        android:id="@+id/textPrompt"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:gravity="center"
-        android:text="Enter the title and author of the book you're looking for"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        app:layout_constraintBottom_toTopOf="@+id/textTitleSearch"
+        android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_chainStyle="packed" />
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <TextView
+            android:id="@+id/textPrompt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:gravity="center"
+            android:text="Enter the title and author of the book you're looking for"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CustomTextInputLayoutStyle"
+            android:layout_marginBottom="24dp" >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textTitleSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="clip_vertical|center_horizontal"
+                android:hint="Title" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            style="@style/CustomTextInputLayoutStyle"
+            android:layout_marginBottom="24dp" >
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/textAuthorSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:hint="Author" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/buttonBookSearch"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Search collection"
+            android:textColor="@color/md_theme_onPrimary"
+            android:textSize="16sp"
+            app:cornerRadius="8dp"
+            android:layout_marginBottom="20dp" />
+
+        <Button
+            android:id="@+id/buttonAPISearch"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Search API"
+            android:textSize="16sp"
+            app:cornerRadius="8dp" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

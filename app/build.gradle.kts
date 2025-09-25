@@ -15,11 +15,11 @@ val localProperties = Properties().apply {
 
 android {
     buildFeatures {viewBinding=true}
-    namespace = "com.example.bookishproject"
+    namespace = "dev.kateastenberg.bookishproject"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.bookishproject"
+        applicationId = "dev.kateastenberg.bookishproject"
         minSdk = 27
         targetSdk = 35
         versionCode = 1
@@ -48,6 +48,7 @@ dependencies {
 
     implementation(libs.room.runtime)
     implementation(libs.firebase.database)
+    implementation(libs.firebase.auth)
     annotationProcessor(libs.room.runtime)
     implementation ("com.google.firebase:firebase-database:20.3.0")
 
@@ -64,7 +65,14 @@ dependencies {
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
 
-    implementation("com.google.android.material:material:1.9.0")
+    implementation("com.google.android.material:material:1.12.0")
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
+
+    implementation("androidx.transition:transition:1.6.0")
+
+    implementation("androidx.core:core-splashscreen:1.0.1")
+
+    implementation("io.reactivex.rxjava3:rxjava:3.1.11")
+    implementation("io.reactivex.rxjava3:rxandroid:3.1.11")
 
 }
-

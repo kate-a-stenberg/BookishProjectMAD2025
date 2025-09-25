@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".JournalFragment">
+    tools:context="dev.kateastenberg.bookishproject.fragments.journal.JournalFragment">
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rview"
@@ -31,12 +31,13 @@
 
     <TextView
         android:id="@+id/messageNoEntries"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:gravity="center"
         android:text="You have no reading activity! Add a new journal entry by tapping the Add button."
         android:textSize="18dp"
         android:visibility="gone"
+        android:layout_margin="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -49,7 +50,6 @@
         android:layout_gravity="center"
         android:layout_margin="16dp"
         android:text="New entry"
-        app:icon="@drawable/add_24px"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         app:layout_constraintBottom_toBottomOf="@+id/rview"
         app:layout_constraintEnd_toEndOf="parent" />

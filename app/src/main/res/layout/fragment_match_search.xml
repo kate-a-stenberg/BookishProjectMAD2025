@@ -5,7 +5,7 @@
     android:id="@+id/frameLayout2"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".BookSearchFragment">
+    tools:context="dev.kateastenberg.bookishproject.fragments.books.BookSearchFragment">
 
     <com.google.android.material.textfield.TextInputEditText
         android:id="@+id/textTitleSearch"

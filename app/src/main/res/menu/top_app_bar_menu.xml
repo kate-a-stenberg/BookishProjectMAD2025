@@ -2,18 +2,19 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
-        android:id="@+id/sort"
-        android:icon="@drawable/sort_24px"
-        android:title="Sort"
-        app:showAsAction="always" />
-    <item
         android:id="@+id/search"
         android:icon="@drawable/search_24px"
         android:title="Search"
-        app:showAsAction="always" />
+        app:showAsAction="ifRoom|collapseActionView"
+        app:actionViewClass="androidx.appcompat.widget.SearchView" />
     <item
         android:id="@+id/help"
         android:icon="@drawable/help_24px"
         android:title="Help"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/logout"
+        android:icon="@drawable/logout_24px"
+        android:title="Logout"
+        app:showAsAction="never" />
 </menu>

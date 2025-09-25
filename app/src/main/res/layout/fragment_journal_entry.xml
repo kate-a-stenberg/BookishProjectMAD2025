@@ -6,7 +6,7 @@
     android:id="@+id/entryView"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".JournalEntryFragment">
+    tools:context="dev.kateastenberg.bookishproject.fragments.journal.JournalEntryFragment">
 
     <com.google.android.material.card.MaterialCardView
         android:id="@+id/editModeIndicator"
@@ -14,7 +14,6 @@
         android:layout_height="wrap_content"
         android:layout_margin="8dp"
         android:layout_gravity="top"
-        android:backgroundTint="@color/md_theme_primaryContainer"
         android:visibility="gone"
         app:cardElevation="4dp">
 
@@ -141,9 +140,7 @@
                 android:id="@+id/dateLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false">
+                android:layout_marginTop="4dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/dateInput"
@@ -153,24 +150,8 @@
                     android:background="@drawable/text_layout_background_journal"
                     android:focusable="false"
                     android:focusableInTouchMode="false"
+                    android:cursorVisible="false"
                     android:inputType="text" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/dateLayoutEditable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:visibility="gone">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/dateInputEditable"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/text_layout_background_journal"
-                    android:inputType="text"
-                    android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Activity type info, editable and not -->
@@ -188,8 +169,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="0dp">
 
@@ -198,30 +177,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:background="@drawable/spinner_background_journal"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
                     android:padding="8dp"
                     android:spinnerMode="dropdown" />
-            </androidx.cardview.widget.CardView>
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/activityCardEditable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:visibility="gone"
-                app:cardCornerRadius="8dp"
-                app:cardElevation="0dp">
-
-                <Spinner
-                    android:id="@+id/activitySpinnerEditable"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:background="@drawable/spinner_background_journal"
-                    android:padding="8dp"
-                    android:spinnerMode="dropdown"
-                    android:visibility="gone" />
-
             </androidx.cardview.widget.CardView>
 
             <!-- Pages read info, editable and not -->
@@ -239,8 +196,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
                 android:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -249,28 +204,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_journal"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
                     android:inputType="text"
                     android:visibility="visible" />
-
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/pagesReadLayoutEditable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:visibility="gone">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/pagesReadInputEditable"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/text_layout_background_journal"
-                    android:inputType="text"
-                    android:visibility="gone" />
 
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -289,8 +224,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
                 android:visibility="visible">
 
                 <com.google.android.material.textfield.TextInputEditText
@@ -299,27 +232,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="4dp"
                     android:background="@drawable/text_layout_background_journal"
-                    android:focusable="false"
-                    android:focusableInTouchMode="false"
                     android:inputType="textMultiLine"
                     android:visibility="visible" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/commentsLayoutEditable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:visibility="gone">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/commentsInputEditable"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="4dp"
-                    android:background="@drawable/text_layout_background_journal"
-                    android:inputType="textMultiLine"
-                    android:visibility="gone" />
             </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
@@ -346,7 +260,8 @@
         app:icon="@drawable/edit_24px"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:visibility="visible"
+        android:enabled="false"
+        android:visibility="gone"
         app:layout_behavior="com.google.android.material.behavior.HideBottomViewOnScrollBehavior"
         />
 

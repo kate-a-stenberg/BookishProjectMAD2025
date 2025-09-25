@@ -22,3 +22,4 @@ local.properties
 .gradle/
 **/executionHistory/
 **/executionHistory.bin
+google-services.json

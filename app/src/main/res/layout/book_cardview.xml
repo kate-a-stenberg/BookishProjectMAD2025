@@ -1,61 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/bookCardViewAlt"
+    android:id="@+id/cardContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="6dp"
-    app:cardCornerRadius="8dp"
-    app:cardElevation="4dp">
+    android:clipChildren="false"
+    android:clipToPadding="false"
+    android:hardwareAccelerated="true"
+    android:backgroundTint="@android:color/transparent"
+    android:background="@android:color/transparent">
 
-    <ImageView
-        android:id="@+id/coverImage"
-        android:layout_width="match_parent"
-        android:layout_height="170dp"
-        android:scaleType="centerCrop"
-        android:src="@drawable/book_cover_background"
-        android:visibility="visible" />
+    <!-- Include both front and back cards here -->
+    <include
+        android:id="@+id/bookCardViewFront"
+        layout="@layout/book_cardview_front" />
 
-    <LinearLayout
-        android:id="@+id/expandedContent"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#CCFFFFFF"
-        android:orientation="vertical"
-        android:padding="4dp"
-        android:gravity="center"
-        android:visibility="gone">
+    <include
+        android:id="@+id/BookCardViewBack"
+        layout="@layout/book_cardview_back" />
 
-        <TextView
-            android:id="@+id/textTitle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:padding="2dp"
-            android:gravity="center"
-            android:text="Book Title"/>
-
-        <TextView
-            android:id="@+id/textSeries"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="14sp"
-            android:textStyle="italic"
-            android:padding="2dp"
-            android:gravity="center"
-            android:text="Series #"/>
-
-        <TextView
-            android:id="@+id/textAuthor"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textSize="16sp"
-            android:padding="2dp"
-            android:gravity="center"
-            android:text="Firstname Lastname"/>
-
-    </LinearLayout>
-
-</androidx.cardview.widget.CardView>
+</FrameLayout>
